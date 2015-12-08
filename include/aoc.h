@@ -16,6 +16,13 @@ Min(int a, int b)
 	return Result;
 }
 
+inline int
+Max(int a, int b)
+{
+	int Result = a > b ? a : b;
+	return Result;
+}
+
 struct input_file
 {
 	char *Contents;
