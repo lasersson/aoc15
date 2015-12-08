@@ -57,26 +57,35 @@ VisitHouse(house_array *Houses, house House)
 	}
 }
 
+#define SANTA_MAX_COUNT 2
+
 static void
 Solve(input_file Input)
 {
 	house_array VisitedHouses = {};
 
-	house CurrentHouse = { 0, 0 };
-	VisitHouse(&VisitedHouses, CurrentHouse);
-	for (int It = 0; It < Input.Length; ++It)
+	for (int SantaCount = 0; SantaCount < 2; ++SantaCount)
 	{
-		char c = Input.Contents[It];
-		switch (c)
+		VisitedHouses.Count = 0;
+
+		house SantaHouse[SANTA_MAX_COUNT] = {};
+		VisitHouse(&VisitedHouses, SantaHouse[0]);
+		for (int It = 0; It < Input.Length; ++It)
 		{
-			case '^': ++CurrentHouse.y; break;
-			case '>': ++CurrentHouse.x; break;
-			case 'v': --CurrentHouse.y; break;
-			case '<': --CurrentHouse.x; break;
-			default: Assert(!"Invalid input");
+			house *CurSantaHouse = SantaHouse + (It % (SantaCount + 1));
+			char c = Input.Contents[It];
+			switch (c)
+			{
+				case '^': ++CurSantaHouse->y; break;
+				case '>': ++CurSantaHouse->x; break;
+				case 'v': --CurSantaHouse->y; break;
+				case '<': --CurSantaHouse->x; break;
+				default: Assert(!"Invalid input");
+			}
+			VisitHouse(&VisitedHouses, *CurSantaHouse);
 		}
-		VisitHouse(&VisitedHouses, CurrentHouse);
+		printf("%d\n", VisitedHouses.Count);
 	}
 
-	printf("%d\n", VisitedHouses.Count);
+	free(VisitedHouses.Array);
 }
