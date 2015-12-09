@@ -49,13 +49,6 @@ Solve(input_file Input)
 					WordHasDisallowedPair = true;
 				}
 			}
-			if ((c == 'b' && pc == 'a') ||
-				(c == 'd' && pc == 'c') ||
-				(c == 'q' && pc == 'p') ||
-				(c == 'y' && pc == 'x'))
-			{
-				WordHasDisallowedPair = true;
-			}
 
 			if (c == ppc)
 			{
