@@ -5,6 +5,7 @@ Solve(input_file Input)
 {
 	int Floor = 0;
 
+	int BasementEntryStep = 0;
 	for (int It = 0; It < Input.Length; ++It)
 	{
 		char c = Input.Contents[It]; 
@@ -16,8 +17,13 @@ Solve(input_file Input)
 		{
 			--Floor;
 		}
+		if (BasementEntryStep == 0 && Floor < 0)
+		{
+			BasementEntryStep = It + 1;
+		}
 	}
 
-	printf("%d", Floor);
+	printf("%d\n", Floor);
+	printf("%d\n", BasementEntryStep);
 }
 
