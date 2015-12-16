@@ -9,6 +9,26 @@
 #define Assert(...)
 #endif
 
+#define DeclareArray(name, type) \
+struct name \
+{ \
+	type *Array; \
+	int Count; \
+	int Cap; \
+}; \
+
+#define ArrayAdd(Ary, Obj, type) \
+if ((Ary)->Count == (Ary)->Cap) \
+{ \
+	(Ary)->Cap = Max(1, (Ary)->Cap * 2);\
+	(Ary)->Array = (type *)realloc((Ary)->Array, sizeof(type) * (Ary)->Cap);\
+}\
+(Ary)->Array[(Ary)->Count++] = Obj;\
+
+#define ArrayPop(Ary) \
+Assert((Ary)->Count > 0); \
+--(Ary)->Count;
+
 inline int
 Min(int a, int b)
 {
@@ -36,7 +56,7 @@ ReadInfileFromArgs(int Argc, char **Argv)
 	input_file Result = {};
 	if (Argc == 2)
 	{
-		FILE *File = fopen(Argv[1], "r");
+		FILE *File = fopen(Argv[1], "rb");
 		if (File)
 		{
 			fseek(File, 0, SEEK_END);
