@@ -1,22 +1,6 @@
 #include <aoc.h>
 
-struct container_array
-{
-	int *Array;
-	int Count;
-	int Cap;
-};
-
-static void
-AddContainer(container_array *Containers, int Container)
-{
-	if (Containers->Count == Containers->Cap)
-	{
-		Containers->Cap = Max(1, Containers->Cap * 2);
-		Containers->Array = (int *)realloc(Containers->Array, Containers->Cap * sizeof(int));
-	}
-	Containers->Array[Containers->Count++] = Container;
-}
+DeclareArray(container_array, int);
 
 static int
 CompareContainers(const void *a, const void *b)
@@ -36,7 +20,7 @@ Solve(input_file Input)
 	while (Token)
 	{
 		int Container = atoi(Token);
-		AddContainer(&Containers, Container);
+		ArrayAdd(&Containers, Container, int);
 		Token = strtok(nullptr, Delim);
 	}
 	Assert(Containers.Count < 32);

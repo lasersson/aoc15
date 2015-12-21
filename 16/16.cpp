@@ -48,23 +48,7 @@ InitSue()
 	return Sue;
 }
 
-struct sue_array
-{
-	sue *Array;
-	int Count;
-	int Cap;
-};
-
-static void
-AddSue(sue_array *Sues, sue Sue)
-{
-	if (Sues->Count == Sues->Cap)
-	{
-		Sues->Cap = Max(1, Sues->Cap * 2);
-		Sues->Array = (sue *)realloc(Sues->Array, Sues->Cap * sizeof(sue));
-	}
-	Sues->Array[Sues->Count++] = Sue;
-}
+DeclareArray(sue_array, sue);
 
 static int
 FindMatch(sue_array *Sues, sue MatchSue, property_comparison *Comparisons)
@@ -124,7 +108,7 @@ static void Solve(input_file Input)
 			Sue.Properties[PropIndex] = PropValue;
 		}
 
-		AddSue(&Sues, Sue);
+		ArrayAdd(&Sues, Sue, sue);
 	}
 
 	sue MatchSue = { 3, 7, 2, 3, 0, 0, 5, 3, 2 ,1 };
