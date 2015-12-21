@@ -1,7 +1,5 @@
 #include <aoc.h>
 
-DeclareArray(container_array, int);
-
 static int
 CompareContainers(const void *a, const void *b)
 {
@@ -14,46 +12,47 @@ CompareContainers(const void *a, const void *b)
 static void
 Solve(input_file Input)
 {
-	container_array Containers = {};
+	int *Containers = nullptr;
 	char *Delim = "\r\n";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{
 		int Container = atoi(Token);
-		ArrayAdd(&Containers, Container, int);
+		GAPush(Containers, Container);
 		Token = strtok(nullptr, Delim);
 	}
-	Assert(Containers.Count < 32);
+	int ContainerCount = GACount(Containers);
+	Assert(ContainerCount < 32);
 
-	int *HitCounts = (int *)malloc(Containers.Count * sizeof(int));
-	memset(HitCounts, 0, Containers.Count * sizeof(int));
-	int CombCount = 1 << Containers.Count;
+	int *HitCounts = (int *)malloc(ContainerCount * sizeof(int));
+	memset(HitCounts, 0, ContainerCount * sizeof(int));
+	int CombCount = 1 << ContainerCount;
 	int HitCountTotal = 0;
-	int MinContainerCount = Containers.Count;
+	int MinContainerCount = ContainerCount;
 	for (int Combination = 0; Combination < CombCount; ++Combination)
 	{
 		int Capacity = 0;
-		int ContainerCount = 0;
-		for (int ContainerIt = 0; ContainerIt < Containers.Count; ++ContainerIt)
+		int CombContainerCount = 0;
+		for (int ContainerIt = 0; ContainerIt < ContainerCount; ++ContainerIt)
 		{
 			if (!!(Combination & (1 << ContainerIt)))
 			{
-				++ContainerCount;
-				Capacity += Containers.Array[ContainerIt];
+				++CombContainerCount;
+				Capacity += Containers[ContainerIt];
 			}
 		}
 
 		if (Capacity == 150)
 		{
-			++HitCounts[ContainerCount];
+			++HitCounts[CombContainerCount];
 			++HitCountTotal;
-			MinContainerCount = Min(MinContainerCount, ContainerCount);
+			MinContainerCount = Min(MinContainerCount, CombContainerCount);
 		}
 	}
 
 	printf("%d\n", HitCountTotal);
 	printf("%d\n", HitCounts[MinContainerCount]);
 
-	free(Containers.Array);
+	GAFree(Containers);
 	free(HitCounts);
 }

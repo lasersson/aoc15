@@ -9,26 +9,6 @@
 #define Assert(...)
 #endif
 
-#define DeclareArray(name, type) \
-struct name \
-{ \
-	type *Array; \
-	int Count; \
-	int Cap; \
-}; \
-
-#define ArrayAdd(Ary, Obj, type) \
-if ((Ary)->Count == (Ary)->Cap) \
-{ \
-	(Ary)->Cap = Max(1, (Ary)->Cap * 2);\
-	(Ary)->Array = (type *)realloc((Ary)->Array, sizeof(type) * (Ary)->Cap);\
-}\
-(Ary)->Array[(Ary)->Count++] = Obj;\
-
-#define ArrayPop(Ary) \
-Assert((Ary)->Count > 0); \
---(Ary)->Count;
-
 inline int
 Min(int a, int b)
 {
@@ -41,6 +21,47 @@ Max(int a, int b)
 {
 	int Result = a > b ? a : b;
 	return Result;
+}
+
+
+#define GAHeader(Ary) ((int *)(Ary) - 2)
+#define GACapacity(Ary) (GAHeader(Ary)[0])
+#define GACount(Ary) (GAHeader(Ary)[1])
+#define GAGrow(Ary) (Ary = (decltype(Ary))GAAlloc(Ary, sizeof((Ary)[0]), 1))
+#define GAPush(Ary, x) (GAGrow(Ary), Ary[GACount(Ary)++] = (x))
+#define GAInit(Ary, n) ((decltype(Ary))GAAlloc(Ary, sizeof((Ary)[0]), n))
+#define GAFree(Ary) free((int *)Ary - 2)
+
+static void *
+GAAlloc(void *Ary, int ElemSize, int n)
+{
+	int *NewAry = (int *)Ary;
+	int MinCap = n;
+	if (Ary)
+	{
+		MinCap += GACount(Ary);
+	}
+	if (Ary == nullptr || MinCap > GACapacity(Ary))
+	{
+		int Cap = Ary == nullptr ? 0 : GACapacity(Ary);
+		Cap = Max(MinCap, Cap * 2);
+		int Count = Ary ? GACount(Ary) : 0;
+		NewAry = (int *)realloc(Ary ? GAHeader(Ary) : 0, Cap * ElemSize + sizeof(int) * 2);
+		Assert(NewAry);
+		NewAry[0] = Cap;
+		NewAry[1] = Count;
+
+		NewAry += 2;
+	}
+
+	return NewAry;
+}
+
+static void
+GAPop(void *Ary)
+{
+	Assert(GACount(Ary) > 0);
+	--GACount(Ary);
 }
 
 struct input_file

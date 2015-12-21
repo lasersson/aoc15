@@ -50,7 +50,7 @@ union digest
 static void
 Solve(input_file Input)
 {
-	char *Key = Input.Contents;
+	char *Key = strtok(Input.Contents, "\n\r");
 
 	bool FoundA = false;
 	bool FoundB = false;

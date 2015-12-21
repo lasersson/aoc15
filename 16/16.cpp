@@ -48,16 +48,14 @@ InitSue()
 	return Sue;
 }
 
-DeclareArray(sue_array, sue);
-
 static int
-FindMatch(sue_array *Sues, sue MatchSue, property_comparison *Comparisons)
+FindMatch(sue *Sues, sue MatchSue, property_comparison *Comparisons)
 {
 	int MatchIndex = -1;
 	int MaxMatchCount = 0;
-	for (int SueIt = 0; SueIt < Sues->Count; ++SueIt)
+	for (int SueIt = 0; SueIt < GACount(Sues); ++SueIt)
 	{
-		sue *Sue = Sues->Array + SueIt;
+		sue *Sue = Sues + SueIt;
 		int MatchCount = 0;
 		for (int PropIt = 0; PropIt < PROPERTY_COUNT; ++PropIt)
 		{
@@ -89,7 +87,7 @@ FindMatch(sue_array *Sues, sue MatchSue, property_comparison *Comparisons)
 
 static void Solve(input_file Input)
 {
-	sue_array Sues = {};
+	sue *Sues = nullptr;
 	char *Delim = ": ,\n\r";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
@@ -108,14 +106,14 @@ static void Solve(input_file Input)
 			Sue.Properties[PropIndex] = PropValue;
 		}
 
-		ArrayAdd(&Sues, Sue, sue);
+		GAPush(Sues, Sue);
 	}
 
 	sue MatchSue = { 3, 7, 2, 3, 0, 0, 5, 3, 2 ,1 };
 	property_comparison ComparisonsAllEq[PROPERTY_COUNT] = {};
 
-	printf("%d\n", FindMatch(&Sues, MatchSue, ComparisonsAllEq) + 1);
-	printf("%d\n", FindMatch(&Sues, MatchSue, PropertyComparison) + 1);
+	printf("%d\n", FindMatch(Sues, MatchSue, ComparisonsAllEq) + 1);
+	printf("%d\n", FindMatch(Sues, MatchSue, PropertyComparison) + 1);
 
-	free(Sues.Array);
+	GAFree(Sues);
 }

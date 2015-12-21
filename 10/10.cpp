@@ -3,37 +3,18 @@
 
 typedef uint8_t u8;
 
-struct buffer
+static u8 *
+LookSay(u8 *In, u8 *Out)
 {
-	u8 *Array;
-	int Cap;
-	int Count;
-};
-
-static void
-BufPush(buffer *Buf, u8 v)
-{
-	if (Buf->Count == Buf->Cap)
-	{
-		Buf->Cap = Max(1, Buf->Cap * 2);
-		Buf->Array = (u8 *)realloc(Buf->Array, sizeof(Buf->Array[0]) * Buf->Cap);
-		Assert(Buf->Array);
-	}
-	Buf->Array[Buf->Count++] = v;
-}
-
-static void
-LookSay(buffer *In, buffer *Out)
-{
-	u8 Cur = In->Array[0];
+	u8 Cur = In[0];
 	u8 Count = 1;
-	for (int It = 1; It < In->Count; ++It)
+	for (int It = 1; It < GACount(In); ++It)
 	{
-		u8 i = In->Array[It];
+		u8 i = In[It];
 		if (i != Cur)
 		{
-			BufPush(Out, Count);
-			BufPush(Out, Cur);
+			GAPush(Out, Count);
+			GAPush(Out, Cur);
 			Cur = i;
 			Count = 1;
 		}
@@ -44,38 +25,40 @@ LookSay(buffer *In, buffer *Out)
 		}
 	}
 	Assert(Count > 0);
-	BufPush(Out, Count);
-	BufPush(Out, Cur);
+	GAPush(Out, Count);
+	GAPush(Out, Cur);
+
+	return Out;
 }
 
 static void
 Solve(input_file Input)
 {
-	buffer Buf1 = {};
-	buffer Buf2 = {};
+	u8 *Buf1 = 0;
+	u8 *Buf2 = 0;
 
 	char *Token = strtok(Input.Contents, "\n ");
 	int Len = (int)strlen(Token);
 	for (int It = 0; It < Len; ++It)
 	{
-		BufPush(&Buf1, Token[It] - '0');
+		GAPush(Buf1, Token[It] - '0');
 	}
 
-	buffer *In = &Buf1;
-	buffer *Out = &Buf2;
+	u8 *In = Buf1;
+	u8 *Out = Buf2;
 	for (int It = 0; It < 50; ++It)
 	{
-		LookSay(In, Out);
+		Out = LookSay(In, Out);
 		if (It == 39 || It == 49)
 		{
-			printf("%d\n", Out->Count);
+			printf("%d\n", GACount(Out));
 		}
-		buffer *Tmp = In;
+		u8 *Tmp = In;
 		In = Out;
 		Out = Tmp;
-		Out->Count = 0;
+		GACount(Out) = 0;
 	}
 
-	free(Buf1.Array);
-	free(Buf2.Array);
+	GAFree(In);
+	GAFree(Out);
 }

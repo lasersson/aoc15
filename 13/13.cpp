@@ -19,35 +19,37 @@ MakeVertexId(char *Str)
 	return VertexId;
 }
 
-DeclareArray(vertex_array, vertex_id);
-
 static int
-FindVertexIndex(vertex_array *Vertices, vertex_id Vertex)
+FindVertexIndex(vertex_id *Vertices, vertex_id Vertex)
 {
 	int Result = -1;
-	for (int It = 0; It < Vertices->Count; ++It)
+	if (Vertices)
 	{
-		if (Vertices->Array[It] == Vertex)
+		for (int It = 0; It < GACount(Vertices); ++It)
 		{
-			Result = It;
-			break;
+			if (Vertices[It] == Vertex)
+			{
+				Result = It;
+				break;
+			}
 		}
 	}
 
 	return Result;
 }
 
-static int
-AddVertexToSet(vertex_array *Vertices, char *VertexName)
+static vertex_id *
+AddVertexToSet(vertex_id *Vertices, char *VertexName, int *OutVertexIndex)
 {
 	vertex_id VertexId = MakeVertexId(VertexName);
 	int VertexIndex = FindVertexIndex(Vertices, VertexId);
 	if (VertexIndex < 0)
 	{
-		ArrayAdd(Vertices, VertexId, vertex_id);
-		VertexIndex = Vertices->Count - 1;
+		GAPush(Vertices, VertexId);
+		VertexIndex = GACount(Vertices) - 1;
 	}
-	return VertexIndex;
+	*OutVertexIndex = VertexIndex;
+	return Vertices;
 }
 
 struct edge
@@ -57,15 +59,13 @@ struct edge
 	int Weight;
 };
 
-DeclareArray(edge_array, edge);
-
 static edge
-FindEdge(edge_array *Edges, int Src, int Dst)
+FindEdge(edge *Edges, int Src, int Dst)
 {
 	edge Result = { -1, -1, 0 };
-	for (int EdgeIt = 0; EdgeIt < Edges->Count; ++EdgeIt)
+	for (int EdgeIt = 0; EdgeIt < GACount(Edges); ++EdgeIt)
 	{
-		edge Edge = Edges->Array[EdgeIt];
+		edge Edge = Edges[EdgeIt];
 		if (Edge.Src == Src && Edge.Dst == Dst)
 		{
 			Result = Edge;
@@ -77,19 +77,19 @@ FindEdge(edge_array *Edges, int Src, int Dst)
 }
 
 static int
-FindMaxHappiness(int VertexIndex, vertex_array *Vertices, edge_array *Edges, vertex_array *Visited)
+FindMaxHappiness(int VertexIndex, vertex_id *Vertices, edge *Edges, vertex_id *Visited)
 {
 	int MaxHappiness = -999999;
-	ArrayAdd(Visited, Vertices->Array[VertexIndex], vertex_id);
+	GAPush(Visited, Vertices[VertexIndex]);
 
-	if (Visited->Count < Vertices->Count)
+	if (GACount(Visited) < GACount(Vertices))
 	{
-		for (int EdgeIt = 0; EdgeIt < Edges->Count; ++EdgeIt)
+		for (int EdgeIt = 0; EdgeIt < GACount(Edges); ++EdgeIt)
 		{
-			edge Edge = Edges->Array[EdgeIt];
+			edge Edge = Edges[EdgeIt];
 			if (Edge.Src == VertexIndex)
 			{
-				if (FindVertexIndex(Visited, Vertices->Array[Edge.Dst]) < 0)
+				if (FindVertexIndex(Visited, Vertices[Edge.Dst]) < 0)
 				{
 					edge OtherEdge = FindEdge(Edges, Edge.Dst, Edge.Src);
 					int Happiness = FindMaxHappiness(Edge.Dst, Vertices, Edges, Visited) + Edge.Weight + OtherEdge.Weight;
@@ -100,25 +100,26 @@ FindMaxHappiness(int VertexIndex, vertex_array *Vertices, edge_array *Edges, ver
 	}
 	else
 	{
-		int FirstVertex = FindVertexIndex(Vertices, Visited->Array[0]);
+		int FirstVertex = FindVertexIndex(Vertices, Visited[0]);
 		edge Edge0 = FindEdge(Edges, VertexIndex, FirstVertex);
 		edge Edge1 = FindEdge(Edges, FirstVertex, VertexIndex);
 		MaxHappiness = Edge0.Weight + Edge1.Weight;
 	}
-	ArrayPop(Visited);
+	GAPop(Visited);
 	return MaxHappiness;
 }
 
 static void Solve(input_file Input)
 {
-	vertex_array Vertices = {};
-	edge_array Edges = {};
+	vertex_id *Vertices = nullptr;
+	edge *Edges = nullptr;
 
 	char *Delim = " \r\n.";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{
-		int Src = AddVertexToSet(&Vertices, Token);
+		int Src;
+		Vertices = AddVertexToSet(Vertices, Token, &Src);
 		Token = strtok(nullptr, Delim); // would
 		Token = strtok(nullptr, Delim); // gain/lose
 		int Sign = 0;
@@ -141,37 +142,37 @@ static void Solve(input_file Input)
 		Token = strtok(nullptr, Delim); // to
 		Token = strtok(nullptr, Delim); // V2
 
-		int Dst = AddVertexToSet(&Vertices, Token);
+		int Dst;
+		Vertices = AddVertexToSet(Vertices, Token, &Dst);
 		edge Edge = { Src, Dst, Weight };
-		ArrayAdd(&Edges, Edge, edge);
+		GAPush(Edges, Edge);
 
 		Token = strtok(nullptr, Delim); // V1
 	}
 
-	vertex_array Visited = {};
-	Visited.Cap = Vertices.Cap + 1;
-	Visited.Array = (vertex_id *)malloc(sizeof(vertex_id) * Visited.Cap);
+	vertex_id *Visited = nullptr;
+	Visited = GAInit(Visited, GACapacity(Vertices) + 1);
 
-	int MaxHappiness = FindMaxHappiness(0, &Vertices, &Edges, &Visited);
+	int MaxHappiness = FindMaxHappiness(0, Vertices, Edges, Visited);
 	printf("%d\n", MaxHappiness);
 
-
-	int Me = AddVertexToSet(&Vertices, "Me");
-	for (int VertexIt = 0; VertexIt < Vertices.Count; ++VertexIt)
+	int Me;
+	Vertices = AddVertexToSet(Vertices, "Me", &Me);
+	for (int VertexIt = 0; VertexIt < GACount(Vertices); ++VertexIt)
 	{
 		if (VertexIt != Me)
 		{
 			edge Edge0 = { VertexIt, Me, 0 };
-			ArrayAdd(&Edges, Edge0, edge);
+			GAPush(Edges, Edge0);
 			edge Edge1 = { Me, VertexIt, 0 };
-			ArrayAdd(&Edges, Edge1, edge);
+			GAPush(Edges, Edge1);
 		}
 	}
 
-	MaxHappiness = FindMaxHappiness(0, &Vertices, &Edges, &Visited);
+	MaxHappiness = FindMaxHappiness(0, Vertices, Edges, Visited);
 	printf("%d\n", MaxHappiness);
 
-	free(Vertices.Array);
-	free(Visited.Array);
-	free(Edges.Array);
+	GAFree(Vertices);
+	GAFree(Visited);
+	GAFree(Edges);
 }

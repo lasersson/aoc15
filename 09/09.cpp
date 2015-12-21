@@ -19,20 +19,13 @@ MakeNodeId(char *Str)
 	return Node;
 }
 
-struct node_stack
-{
-	node *Nodes;
-	int Cap;
-	int Count;
-};
-
 static node
-HasNode(node_stack *Stack, node Node)
+HasNode(node *Nodes, node Node)
 {
 	bool Exists = false;
-	for (int It = 0; It < Stack->Count; ++It)
+	for (int It = 0; It < GACount(Nodes); ++It)
 	{
-		if (Stack->Nodes[It] == Node)
+		if (Nodes[It] == Node)
 		{
 			Exists = true;
 			break;
@@ -41,34 +34,14 @@ HasNode(node_stack *Stack, node Node)
 	return Exists;
 }
 
-static void
-PushNode(node_stack *Stack, node Node)
+static node *
+AddNodeToSet(node *Nodes, node Node)
 {
-	if (Stack->Count == Stack->Cap)
+	if (!Nodes || !HasNode(Nodes, Node))
 	{
-		Stack->Cap = Max(1, Stack->Cap * 2);
-		Stack->Nodes = (node *)realloc(Stack->Nodes, sizeof(node) * Stack->Cap);
-		Assert(Stack->Nodes);
+		GAPush(Nodes, Node);
 	}
-	Stack->Nodes[Stack->Count++] = Node;
-}
-
-static void
-PopNode(node_stack *Stack)
-{
-	Assert(Stack->Count > 0);
-	--Stack->Count;
-}
-
-static node
-MakeNode(node_stack *Stack, char *NodeName)
-{
-	node Node = MakeNodeId(NodeName);
-	if (!HasNode(Stack, Node))
-	{
-		PushNode(Stack, Node);
-	}
-	return Node;
+	return Nodes;
 }
 
 struct edge
@@ -77,27 +50,6 @@ struct edge
 	node Node2;
 	int Dist;
 };
-
-struct graph
-{
-	edge *Edges;
-	int Count;
-	int Cap;
-};
-
-static void
-PushEdge(graph *Graph, node Node1, node Node2, int Dist)
-{
-	if (Graph->Count == Graph->Cap)
-	{
-		Graph->Cap = Max(1, Graph->Cap * 2);
-		Graph->Edges = (edge *)realloc(Graph->Edges, sizeof(edge) * Graph->Cap);
-		Assert(Graph->Edges);
-	}
-
-	Graph->Edges[Graph->Count] = { Node1, Node2, Dist };
-	++Graph->Count;
-}
 
 struct path_result
 {
@@ -114,27 +66,27 @@ PathMinMax(path_result A, path_result B)
 }
 
 static path_result
-FindPaths(node Node, graph *Graph, node_stack *Visited)
+FindPaths(node Node, edge *Edges, node *Visited)
 {
-	PushNode(Visited, Node);
-
+	Assert(GACount(Visited) < GACapacity(Visited));
+	GAPush(Visited, Node);
 	path_result Result = { 9999999, 0 };
-	for (int It = 0; It < Graph->Count; ++It)
+	for (int It = 0; It < GACount(Edges); ++It)
 	{
-		edge *Edge = Graph->Edges + It;
+		edge *Edge = Edges + It;
 		if (Edge->Node1 == Node || Edge->Node2 == Node)
 		{
 			node OtherNode = Edge->Node1 == Node ? Edge->Node2 : Edge->Node1;
 			if (!HasNode(Visited, OtherNode))
 			{
-				path_result EdgeRes = FindPaths(OtherNode, Graph, Visited);
+				path_result EdgeRes = FindPaths(OtherNode, Edges, Visited);
 				EdgeRes.Shortest += Edge->Dist;
 				EdgeRes.Longest += Edge->Dist;
 				Result = PathMinMax(Result, EdgeRes);
 			}
 		}
 	}
-	PopNode(Visited);
+	GAPop(Visited);
 
 	if (Result.Shortest == 9999999 && Result.Longest == 0)
 	{
@@ -147,40 +99,46 @@ FindPaths(node Node, graph *Graph, node_stack *Visited)
 static void
 Solve(input_file Input)
 {
-	node_stack AllNodes = {};
-	graph Graph = {};
+	node *AllNodes = nullptr;
+	edge *Edges = nullptr;
 
 	char *Delim = "\n ";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{
-		node Node1 = MakeNode(&AllNodes, Token);
+		node Node1 = MakeNodeId(Token);
+		AllNodes = AddNodeToSet(AllNodes, Node1);
 		Token = strtok(nullptr, Delim);
 		Assert(strcmp(Token, "to") == 0);
 		Token = strtok(nullptr, Delim);
-		node Node2 = MakeNode(&AllNodes, Token);
+		node Node2 = MakeNodeId(Token);
+		AllNodes = AddNodeToSet(AllNodes, Node2);
 		Token = strtok(nullptr, Delim);
 		Assert(Token[0] == '=');
 		Token = strtok(nullptr, Delim);
 		int Dist = atoi(Token);
 
-		PushEdge(&Graph, Node1, Node2, Dist);
+		edge Edge = { Node1, Node2, Dist };
+		GAPush(Edges, Edge);
 
 		Token = strtok(nullptr, Delim);
 	}
 
-	node_stack VisitedNodes = {};
-	path_result Result = { 9999999, 0 };
-	for (int It = 0; It < AllNodes.Count; ++It)
+	node Source = MakeNodeId("source");
+	for (int It = 0; It < GACount(AllNodes); ++It)
 	{
-		node Node = AllNodes.Nodes[It];
-		Result = PathMinMax(Result, FindPaths(Node, &Graph, &VisitedNodes));
-		Assert(VisitedNodes.Count == 0);
+		edge Edge = { Source, AllNodes[It], 0 };
+		GAPush(Edges, Edge);
 	}
+	AllNodes = AddNodeToSet(AllNodes, Source);
+
+	node *Visited = nullptr;
+	Visited = GAInit(Visited, GACount(AllNodes));
+	path_result Result = FindPaths(Source, Edges, Visited);
 	printf("%d\n", Result.Shortest);
 	printf("%d\n", Result.Longest);
 
-	free(AllNodes.Nodes);
-	free(VisitedNodes.Nodes);
-	free(Graph.Edges);
+	GAFree(AllNodes);
+	GAFree(Edges);
+	GAFree(Visited);
 }

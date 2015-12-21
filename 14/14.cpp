@@ -7,8 +7,6 @@ struct reindeer
 	int RestTime;
 };
 
-DeclareArray(reindeer_array, reindeer);
-
 static int
 GetDistanceAfter(reindeer Reindeer, int Duration)
 {
@@ -26,7 +24,7 @@ GetDistanceAfter(reindeer Reindeer, int Duration)
 static void
 Solve(input_file Input)
 {
-	reindeer_array Reindeers = {};
+	reindeer *Reindeers = nullptr;
 	char *Delim = " .\n\r";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
@@ -52,25 +50,25 @@ Solve(input_file Input)
 		Reindeer.RestTime = atoi(Token);
 		Token = strtok(nullptr, Delim); // seconds
 
-		ArrayAdd(&Reindeers, Reindeer, reindeer);
+		GAPush(Reindeers, Reindeer);
 
 		Token = strtok(nullptr, Delim); // Name
 	}
 
 	int Duration = 2503;
-	int *Distances = (int *)malloc(sizeof(int) * Reindeers.Count);
-	int *Scores = (int *)malloc(sizeof(int) * Reindeers.Count);
-	memset(Scores, 0, sizeof(int) * Reindeers.Count);
+	int *Distances = (int *)malloc(sizeof(int) * GACount(Reindeers));
+	int *Scores = (int *)malloc(sizeof(int) * GACount(Reindeers));
+	memset(Scores, 0, sizeof(int) * GACount(Reindeers));
 
 	for (int Time = 1; Time <= Duration; ++Time)
 	{
 		int MaxDistance = 0;
-		for (int It = 0; It < Reindeers.Count; ++It)
+		for (int It = 0; It < GACount(Reindeers); ++It)
 		{
-			Distances[It] = GetDistanceAfter(Reindeers.Array[It], Time);
+			Distances[It] = GetDistanceAfter(Reindeers[It], Time);
 			MaxDistance = Max(MaxDistance, Distances[It]);
 		}
-		for (int It = 0; It < Reindeers.Count; ++It)
+		for (int It = 0; It < GACount(Reindeers); ++It)
 		{
 			if (Distances[It] == MaxDistance)
 			{
@@ -81,7 +79,7 @@ Solve(input_file Input)
 
 	int MaxScore = 0;
 	int MaxDistance = 0;
-	for (int It = 0; It < Reindeers.Count; ++It)
+	for (int It = 0; It < GACount(Reindeers); ++It)
 	{
 		MaxScore = Max(MaxScore, Scores[It]);
 		MaxDistance = Max(MaxDistance, Distances[It]);
@@ -90,7 +88,7 @@ Solve(input_file Input)
 	printf("%d\n", MaxDistance);
 	printf("%d\n", MaxScore);
 
-	free(Reindeers.Array);
+	GAFree(Reindeers);
 	free(Distances);
 	free(Scores);
 }

@@ -31,10 +31,6 @@ Add(ingredient i, ingredient j)
 	return i;
 }
 
-DeclareArray(ingredient_array, ingredient);
-
-DeclareArray(int_array, int);
-
 struct score
 {
 	int Regular;
@@ -50,15 +46,15 @@ Max(score a, score b)
 }
 
 static score
-CalcMaxScore(int IngredientIndex, ingredient CurrentTotal, ingredient_array *Ingredients, int xSum)
+CalcMaxScore(int IngredientIndex, ingredient CurrentTotal, ingredient *Ingredients, int xSum)
 {
 	score MaxScore = {};
 	for (int x = 0; x <= (100 - xSum); ++x)
 	{
-		ingredient NewTotal = Add(Mul(Ingredients->Array[IngredientIndex], x), CurrentTotal);
+		ingredient NewTotal = Add(Mul(Ingredients[IngredientIndex], x), CurrentTotal);
 		score Score = {};
 		int xNew = xSum + x;
-		if (IngredientIndex == Ingredients->Count-1)
+		if (IngredientIndex == GACount(Ingredients) - 1)
 		{
 			if (xNew == 100)
 			{
@@ -84,7 +80,7 @@ CalcMaxScore(int IngredientIndex, ingredient CurrentTotal, ingredient_array *Ing
 }
 
 static score
-CalcMaxScore(ingredient_array *Ingredients)
+CalcMaxScore(ingredient *Ingredients)
 {
 	ingredient Current = {};
 	score MaxScore = CalcMaxScore(0, Current, Ingredients, 0);
@@ -94,8 +90,7 @@ CalcMaxScore(ingredient_array *Ingredients)
 static void
 Solve(input_file Input)
 {
-	ingredient_array Ingredients = {};
-	int_array IngredientFactors = {};
+	ingredient *Ingredients = nullptr;
 
 	char *Delim = " ,:\n\r";
 	char *Token = strtok(Input.Contents, Delim);
@@ -123,15 +118,14 @@ Solve(input_file Input)
 		Assert(strcmp(Token, "calories") == 0);
 		Ingredient.Calories = atoi(strtok(nullptr, Delim));
 
-		ArrayAdd(&Ingredients, Ingredient, ingredient);
-
-		int IngredientFactor = Ingredient.Capacity + Ingredient.Durability + Ingredient.Flavor + Ingredient.Texture;
-		ArrayAdd(&IngredientFactors, IngredientFactor, int);
+		GAPush(Ingredients, Ingredient);
 
 		Token = strtok(nullptr, Delim);
 	}
 
-	score MaxScore = CalcMaxScore(&Ingredients);
+	score MaxScore = CalcMaxScore(Ingredients);
 	printf("%d\n", MaxScore.Regular);
 	printf("%d\n", MaxScore.Diet);
+
+	GAFree(Ingredients);
 }

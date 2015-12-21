@@ -49,44 +49,13 @@ struct wire
 	id Operand2;
 };
 
-struct circuit
-{
-	wire *Wires;
-	int WireCount;
-	int WireCap;
-};
-
 static wire *
-PushWire(circuit *Circuit)
-{
-	if (Circuit->WireCount == Circuit->WireCap)
-	{
-		Circuit->WireCap = Max(1, Circuit->WireCap * 2);
-		Circuit->Wires = (wire *)realloc(Circuit->Wires, sizeof(wire) * Circuit->WireCap);
-	}
-	
-	wire *Wire = Circuit->Wires + Circuit->WireCount;
-	++Circuit->WireCount;
-	return Wire;
-}
-
-static circuit
-CloneCircuit(circuit *Src)
-{
-	circuit Dst = {};
-	Dst.WireCount = Dst.WireCap = Src->WireCount;
-	Dst.Wires = (wire *)malloc(Dst.WireCount * sizeof(wire));
-	memcpy(Dst.Wires, Src->Wires, sizeof(wire) * Src->WireCount);
-	return Dst;
-}
-
-static wire *
-FindWire(id Id, circuit *Circuit)
+FindWire(id Id, wire *Wires)
 {
 	wire *Result = nullptr;
-	for (int It = 0; It < Circuit->WireCount; ++It)
+	for (int It = 0; It < GACount(Wires); ++It)
 	{
-		wire *Wire = Circuit->Wires + It;
+		wire *Wire = Wires + It;
 		if (Wire->Id == Id)
 		{
 			Result = Wire;
@@ -105,7 +74,7 @@ struct cached_value
 };
 
 static u16
-GetValue(id Id, circuit *Circuit)
+GetValue(id Id, wire *Circuit)
 {
 	u16 Value;
 	if (Id & (1 << 31))
@@ -148,42 +117,42 @@ GetValue(id Id, circuit *Circuit)
 static void
 Solve(input_file Input)
 {
-	circuit Circuit = {};
+	wire *Circuit = nullptr;
 	char *Delim = "\n ";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{
-		wire *Wire = PushWire(&Circuit);
+		wire Wire;
 
 		if (strcmp(Token, "NOT") == 0)
 		{
-			Wire->Op = Op_Not;
+			Wire.Op = Op_Not;
 			Token = strtok(nullptr, Delim);
-			Wire->Operand1 = MakeId(Token);
+			Wire.Operand1 = MakeId(Token);
 			Token = strtok(nullptr, Delim);
 		}
 		else
 		{
-			Wire->Operand1 = MakeId(Token);
+			Wire.Operand1 = MakeId(Token);
 
 			Token = strtok(nullptr, Delim);
 			if (Token[0] == '-')
 			{
-				Wire->Op = Op_Set;
+				Wire.Op = Op_Set;
 			}
 			else
 			{
 				if (Token[0] == 'A')
-					Wire->Op = Op_And;
+					Wire.Op = Op_And;
 				else if (Token[0] == 'O')
-					Wire->Op = Op_Or;
+					Wire.Op = Op_Or;
 				else if (Token[0] == 'R')
-					Wire->Op = Op_ShiftR;
+					Wire.Op = Op_ShiftR;
 				else if (Token[0] == 'L')
-					Wire->Op = Op_ShiftL;
+					Wire.Op = Op_ShiftL;
 
 				Token = strtok(nullptr, Delim);
-				Wire->Operand2 = MakeId(Token);
+				Wire.Operand2 = MakeId(Token);
 				Token = strtok(nullptr, Delim);
 			}
 		}
@@ -191,24 +160,26 @@ Solve(input_file Input)
 		Assert(Token[0] == '-' && Token[1] == '>');
 
 		Token = strtok(nullptr, Delim);
-		Wire->Id = MakeId(Token);
+		Wire.Id = MakeId(Token);
+		GAPush(Circuit, Wire);
 
 		Token = strtok(nullptr, Delim);
 	}
 
-	circuit SolveCircuit = CloneCircuit(&Circuit);
+	wire *SolveCircuit = (wire *)malloc(sizeof(wire) * GACount(Circuit));
+	memcpy(SolveCircuit, Circuit, sizeof(wire) * GACount(Circuit));
 	id WireAId = MakeId("a");
-	u16 Value = GetValue(WireAId, &SolveCircuit);
+	u16 Value = GetValue(WireAId, SolveCircuit);
 	printf("%d\n", Value);
 
-	SolveCircuit = CloneCircuit(&Circuit);
-	wire *WireB = FindWire(MakeId("b"), &SolveCircuit);
+	memcpy(SolveCircuit, Circuit, sizeof(wire) * GACount(Circuit));
+	wire *WireB = FindWire(MakeId("b"), SolveCircuit);
 	WireB->Op = Op_Set;
 	WireB->Operand1 = Value;
 	WireB->Operand2 = 0;
-	Value = GetValue(WireAId, &SolveCircuit);
+	Value = GetValue(WireAId, SolveCircuit);
 	printf("%d\n", Value);
 
-	free(Circuit.Wires);
-	free(SolveCircuit.Wires);
+	GAFree(Circuit);
+	free(SolveCircuit);
 }

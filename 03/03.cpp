@@ -5,39 +5,13 @@ struct house
 	int x, y;
 };
 
-struct house_array
-{
-	house *Array;
-	int Count;
-	int Capacity;
-};
-
-static void
-ExpandHouseArray(house_array *Houses, int Capacity)
-{
-	Capacity = Max(Capacity, 1);
-	Houses->Array = (house *)realloc(Houses->Array, sizeof(house) * Capacity);
-	Assert(Houses->Array);
-	Houses->Capacity = Capacity;
-}
-
-static void
-PushHouse(house_array *Houses, house House)
-{
-	if (Houses->Count == Houses->Capacity)
-	{
-		ExpandHouseArray(Houses, Houses->Capacity * 2);
-	}
-	Houses->Array[Houses->Count++] = House;
-}
-
 static bool
-HouseIsVisited(house_array *Houses, house House)
+HouseIsVisited(house *Houses, house House)
 {
 	bool Result = false;
-	for (int It = 0; It < Houses->Count; ++It)
+	for (int It = 0; It < GACount(Houses); ++It)
 	{
-		house *HouseIt = Houses->Array + It;
+		house *HouseIt = Houses + It;
 		if (HouseIt->x == House.x && HouseIt->y == House.y)
 		{
 			Result = true;
@@ -48,13 +22,14 @@ HouseIsVisited(house_array *Houses, house House)
 	return Result;
 }
 
-static void
-VisitHouse(house_array *Houses, house House)
+static house *
+VisitHouse(house *Houses, house House)
 {
-	if (!HouseIsVisited(Houses, House))
+	if (!Houses || !HouseIsVisited(Houses, House))
 	{
-		PushHouse(Houses, House);
+		GAPush(Houses, House);
 	}
+	return Houses;
 }
 
 #define SANTA_MAX_COUNT 2
@@ -62,14 +37,12 @@ VisitHouse(house_array *Houses, house House)
 static void
 Solve(input_file Input)
 {
-	house_array VisitedHouses = {};
+	house *VisitedHouses = nullptr;
 
 	for (int SantaCount = 0; SantaCount < 2; ++SantaCount)
 	{
-		VisitedHouses.Count = 0;
-
 		house SantaHouse[SANTA_MAX_COUNT] = {};
-		VisitHouse(&VisitedHouses, SantaHouse[0]);
+		VisitedHouses = VisitHouse(VisitedHouses, SantaHouse[0]);
 		for (int It = 0; It < Input.Length; ++It)
 		{
 			house *CurSantaHouse = SantaHouse + (It % (SantaCount + 1));
@@ -82,10 +55,12 @@ Solve(input_file Input)
 				case '<': --CurSantaHouse->x; break;
 				default: Assert(!"Invalid input");
 			}
-			VisitHouse(&VisitedHouses, *CurSantaHouse);
+			VisitedHouses = VisitHouse(VisitedHouses, *CurSantaHouse);
 		}
-		printf("%d\n", VisitedHouses.Count);
+		printf("%d\n", GACount(VisitedHouses));
+
+		GACount(VisitedHouses) = 0;
 	}
 
-	free(VisitedHouses.Array);
+	GAFree(VisitedHouses);
 }
