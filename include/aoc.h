@@ -9,6 +9,8 @@
 #define Assert(...)
 #endif
 
+#define ArrayCount(x) (sizeof(x)/sizeof((x)[0]))
+
 inline int
 Min(int a, int b)
 {
