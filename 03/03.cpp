@@ -59,7 +59,7 @@ Solve(input_file Input)
 		}
 		printf("%d\n", GACount(VisitedHouses));
 
-		GACount(VisitedHouses) = 0;
+		GAClear(VisitedHouses);
 	}
 
 	GAFree(VisitedHouses);

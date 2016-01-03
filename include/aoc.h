@@ -26,9 +26,11 @@ Max(int a, int b)
 
 #define GAHeader(Ary) ((int *)(Ary) - 2)
 #define GACapacity(Ary) (GAHeader(Ary)[0])
-#define GACount(Ary) (GAHeader(Ary)[1])
+#define GACount(Ary) ((Ary) ? GAHeader(Ary)[1] : 0)
+#define GAClear(Ary) (GAHeader(Ary)[1] = 0)
+#define GATop(Ary) ((Ary)[GACount(Ary) - 1])
 #define GAGrow(Ary) (Ary = (decltype(Ary))GAAlloc(Ary, sizeof((Ary)[0]), 1))
-#define GAPush(Ary, x) (GAGrow(Ary), Ary[GACount(Ary)++] = (x))
+#define GAPush(Ary, x) (GAGrow(Ary), Ary[GAHeader(Ary)[1]++] = (x))
 #define GAInit(Ary, n) ((decltype(Ary))GAAlloc(Ary, sizeof((Ary)[0]), n))
 #define GAFree(Ary) free((int *)Ary - 2)
 
@@ -61,7 +63,7 @@ static void
 GAPop(void *Ary)
 {
 	Assert(GACount(Ary) > 0);
-	--GACount(Ary);
+	--GAHeader(Ary)[1];
 }
 
 struct input_file

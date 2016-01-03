@@ -56,7 +56,7 @@ Solve(input_file Input)
 		u8 *Tmp = In;
 		In = Out;
 		Out = Tmp;
-		GACount(Out) = 0;
+		GAClear(Out);
 	}
 
 	GAFree(In);
