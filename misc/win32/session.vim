@@ -1,3 +1,3 @@
-set makeprg=build.bat
+set makeprg=build\ %<
 copen
 wincmd k

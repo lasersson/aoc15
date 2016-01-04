@@ -1,5 +1,5 @@
 @echo off
-pushd %~dp0\build
+pushd %~dp0..\..\build
 for %%X in ("*.exe") do (
 	echo puzzle %%~nX:
 	%%X input%%~nX.txt

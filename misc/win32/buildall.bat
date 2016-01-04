@@ -1,8 +1,6 @@
 @echo off
-pushd %~dp0\..\..
-for /d %%D in ("0*", "1*", "2*") do (
-	pushd %%D
-	call build.bat
-	popd
+pushd %~dp0..\..\src
+for %%f in ("*.cpp") do (
+	call build %%~nf %1
 )
 popd
