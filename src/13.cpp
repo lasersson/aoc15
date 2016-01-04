@@ -109,7 +109,8 @@ FindMaxHappiness(int VertexIndex, vertex_id *Vertices, edge *Edges, vertex_id *V
 	return MaxHappiness;
 }
 
-static void Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	vertex_id *Vertices = nullptr;
 	edge *Edges = nullptr;
@@ -150,11 +151,12 @@ static void Solve(input_file Input)
 		Token = strtok(nullptr, Delim); // V1
 	}
 
+	output Output = {};
+
 	vertex_id *Visited = nullptr;
 	Visited = GAInit(Visited, GACapacity(Vertices) + 1);
 
-	int MaxHappiness = FindMaxHappiness(0, Vertices, Edges, Visited);
-	printf("%d\n", MaxHappiness);
+	Output.a = FindMaxHappiness(0, Vertices, Edges, Visited);
 
 	int Me;
 	Vertices = AddVertexToSet(Vertices, "Me", &Me);
@@ -169,10 +171,11 @@ static void Solve(input_file Input)
 		}
 	}
 
-	MaxHappiness = FindMaxHappiness(0, Vertices, Edges, Visited);
-	printf("%d\n", MaxHappiness);
+	Output.b = FindMaxHappiness(0, Vertices, Edges, Visited);
 
 	GAFree(Vertices);
 	GAFree(Visited);
 	GAFree(Edges);
+
+	return Output;
 }

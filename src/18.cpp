@@ -98,8 +98,8 @@ GetOnCount(bool *Grid)
 }
 
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	bool *LightGridOrig = (bool *)malloc(sizeof(bool) * LIGHT_COUNT);
 	bool *LightGrid1 = (bool *)malloc(sizeof(bool) * LIGHT_COUNT);
@@ -120,9 +120,11 @@ Solve(input_file Input)
 		++RowIt;
 	}
 
+	output Output = {};
+
 	memcpy(LightGrid1, LightGridOrig, sizeof(bool) * LIGHT_COUNT);
 	bool *Result = Tick(LightGrid1, LightGrid2, 100, false);
-	printf("%d\n", GetOnCount(Result));
+	Output.a = GetOnCount(Result);
 
 	memcpy(LightGrid1, LightGridOrig, sizeof(bool) * LIGHT_COUNT);
 	LightGrid1[0] = true;
@@ -130,9 +132,11 @@ Solve(input_file Input)
 	LightGrid1[(ROW_COUNT-1) * COL_COUNT + 0] = true;
 	LightGrid1[(ROW_COUNT-1) * COL_COUNT + (COL_COUNT - 1)] = true;
 	Result = Tick(LightGrid1, LightGrid2, 100, true);
-	printf("%d\n", GetOnCount(Result));
+	Output.b = GetOnCount(Result);
 
 	free(LightGridOrig);
 	free(LightGrid1);
 	free(LightGrid2);
+
+	return Output;
 }

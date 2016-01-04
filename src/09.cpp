@@ -96,8 +96,8 @@ FindPaths(node Node, edge *Edges, node *Visited)
 	return Result;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	node *AllNodes = nullptr;
 	edge *Edges = nullptr;
@@ -135,10 +135,11 @@ Solve(input_file Input)
 	node *Visited = nullptr;
 	Visited = GAInit(Visited, GACount(AllNodes));
 	path_result Result = FindPaths(Source, Edges, Visited);
-	printf("%d\n", Result.Shortest);
-	printf("%d\n", Result.Longest);
 
 	GAFree(AllNodes);
 	GAFree(Edges);
 	GAFree(Visited);
+
+	output Output = { Result.Shortest, Result.Longest };
+	return Output;
 }

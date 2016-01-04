@@ -37,12 +37,14 @@ FindMinHouseIndex(int PresentCountLimit, int HousesPerElf, int PresentsPerElf)
 	return HouseIndex - 1;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	char *Token = strtok(Input.Contents, "\r\n ");
 	int PresentCountLimit = atoi(Token);
 
-	printf("%d\n", FindMinHouseIndex(PresentCountLimit, -1, 10));
-	printf("%d\n", FindMinHouseIndex(PresentCountLimit, 50, 11));
+	output Output = {};
+	Output.a = FindMinHouseIndex(PresentCountLimit, -1, 10);
+	Output.b = FindMinHouseIndex(PresentCountLimit, 50, 11);
+	return Output;
 }

@@ -114,8 +114,8 @@ GetValue(id Id, wire *Circuit)
 }
 
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	wire *Circuit = nullptr;
 	char *Delim = "\n ";
@@ -166,11 +166,15 @@ Solve(input_file Input)
 		Token = strtok(nullptr, Delim);
 	}
 
-	wire *SolveCircuit = (wire *)malloc(sizeof(wire) * GACount(Circuit));
+	output Output = {};
+
+	wire *SolveCircuit = nullptr;
+	SolveCircuit = GAInit(SolveCircuit, GACount(Circuit));
+	GAHeader(SolveCircuit)[1] = GACount(Circuit);
 	memcpy(SolveCircuit, Circuit, sizeof(wire) * GACount(Circuit));
 	id WireAId = MakeId("a");
 	u16 Value = GetValue(WireAId, SolveCircuit);
-	printf("%d\n", Value);
+	Output.a = Value;
 
 	memcpy(SolveCircuit, Circuit, sizeof(wire) * GACount(Circuit));
 	wire *WireB = FindWire(MakeId("b"), SolveCircuit);
@@ -178,8 +182,9 @@ Solve(input_file Input)
 	WireB->Operand1 = Value;
 	WireB->Operand2 = 0;
 	Value = GetValue(WireAId, SolveCircuit);
-	printf("%d\n", Value);
+	Output.b = Value;
 
 	GAFree(Circuit);
-	free(SolveCircuit);
+	GAFree(SolveCircuit);
+	return Output;
 }

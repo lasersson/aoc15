@@ -85,7 +85,8 @@ FindMatch(sue *Sues, sue MatchSue, property_comparison *Comparisons)
 	return MatchIndex;
 }
 
-static void Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	sue *Sues = nullptr;
 	char *Delim = ": ,\n\r";
@@ -112,8 +113,10 @@ static void Solve(input_file Input)
 	sue MatchSue = { 3, 7, 2, 3, 0, 0, 5, 3, 2 ,1 };
 	property_comparison ComparisonsAllEq[PROPERTY_COUNT] = {};
 
-	printf("%d\n", FindMatch(Sues, MatchSue, ComparisonsAllEq) + 1);
-	printf("%d\n", FindMatch(Sues, MatchSue, PropertyComparison) + 1);
+	output Output = {};
+	Output.a = FindMatch(Sues, MatchSue, ComparisonsAllEq) + 1;
+	Output.b = FindMatch(Sues, MatchSue, PropertyComparison) + 1;
 
 	GAFree(Sues);
+	return Output;
 }

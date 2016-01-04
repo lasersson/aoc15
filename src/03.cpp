@@ -34,11 +34,12 @@ VisitHouse(house *Houses, house House)
 
 #define SANTA_MAX_COUNT 2
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	house *VisitedHouses = nullptr;
 
+	output Output;
 	for (int SantaCount = 0; SantaCount < 2; ++SantaCount)
 	{
 		house SantaHouse[SANTA_MAX_COUNT] = {};
@@ -57,10 +58,11 @@ Solve(input_file Input)
 			}
 			VisitedHouses = VisitHouse(VisitedHouses, *CurSantaHouse);
 		}
-		printf("%d\n", GACount(VisitedHouses));
 
+		Output.v[SantaCount] = GACount(VisitedHouses);
 		GAClear(VisitedHouses);
 	}
 
 	GAFree(VisitedHouses);
+	return Output;
 }

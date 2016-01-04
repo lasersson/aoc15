@@ -140,8 +140,8 @@ FindMinQuantumEntanglement(int *Weights, int TotalWeight, int CompartmentCount)
 	return MinQuantumEntanglement;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	int TotalWeight = 0;
 	int *Weights = nullptr;
@@ -155,6 +155,8 @@ Solve(input_file Input)
 		Token = strtok(nullptr, Delim);
 	}
 
-	printf("%llu\n", FindMinQuantumEntanglement(Weights, TotalWeight, 3));
-	printf("%llu\n", FindMinQuantumEntanglement(Weights, TotalWeight, 4));
+	output Output = {};
+	Output.a = FindMinQuantumEntanglement(Weights, TotalWeight, 3);
+	Output.b = FindMinQuantumEntanglement(Weights, TotalWeight, 4);
+	return Output;
 }

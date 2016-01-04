@@ -175,8 +175,8 @@ CastSpell(game_state State, spell Spell)
 	return State;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	game_state InitState = {};
 	InitState.Player = { 50, 0, 0, 500, 0 };
@@ -187,6 +187,7 @@ Solve(input_file Input)
 	strtok(nullptr, Delim);
 	InitState.Boss.Damage = atoi(strtok(nullptr, Delim));
 	
+	output Output = {};
 	for (int DifficultyIt = 0; DifficultyIt < Difficulty_Count; ++DifficultyIt)
 	{
 		game_state PlaythroughState = InitState;
@@ -249,6 +250,7 @@ Solve(input_file Input)
 
 			++It;
 		}
-		printf("%d\n", ManaSpentMin);
+		Output.v[DifficultyIt] = ManaSpentMin;
 	}
+	return Output;
 }

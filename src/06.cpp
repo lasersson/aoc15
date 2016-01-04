@@ -18,8 +18,8 @@ struct pos
 	int x, y;
 };
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	char *Delim = "\n, ";
 	char *Token = strtok(Input.Contents, Delim);
@@ -125,6 +125,6 @@ Solve(input_file Input)
 		Token = strtok(nullptr, Delim);
 	}
 
-	printf("%d\n", LightsLitCount);
-	printf("%d\n", TotalBrightness);
+	output Output = { LightsLitCount, TotalBrightness };
+	return Output;
 }

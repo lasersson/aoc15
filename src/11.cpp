@@ -102,8 +102,8 @@ GetNext(password OldPwd)
 	return Pwd;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	password Pwd = {};
 	char *PwStr = strtok(Input.Contents, "\n ");
@@ -113,8 +113,11 @@ Solve(input_file Input)
 		Pwd.Buf[It] = PwStr[It] - 'a';
 	}
 
+	output Output;
+
 	Pwd = GetNext(Pwd);
-	PrintPassword(Pwd);
+	Output.a = *(uint64_t *)&Pwd;
 	Pwd = GetNext(Pwd);
-	PrintPassword(Pwd);
+	Output.b = *(uint64_t *)&Pwd;
+	return Output;
 }

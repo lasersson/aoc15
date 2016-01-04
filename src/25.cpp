@@ -1,8 +1,8 @@
 #include <aoc.h>
 #include <stdint.h>
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	char *Delim = "\r\n,. column";
 	char *Token = strtok(Input.Contents + 80, Delim);
@@ -22,5 +22,7 @@ Solve(input_file Input)
 			++RowIt;
 		}
 	}
-	printf("%d\n", Code);
+	
+	output Output = { Code, 0 };
+	return Output;
 }

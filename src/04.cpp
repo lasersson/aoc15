@@ -47,10 +47,11 @@ union digest
 	u32 w[4];
 };
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	char *Key = strtok(Input.Contents, "\n\r");
+	output Output = {};
 
 	bool FoundA = false;
 	bool FoundB = false;
@@ -121,16 +122,17 @@ Solve(input_file Input)
 		{
 			if (!FoundA)
 			{
-				printf("%d\n", Number);
+				Output.a = Number;
 				FoundA = true;
 			}
 			if (Digest.b[2] == 0 && !FoundB)
 			{
-				printf("%d\n", Number);
+				Output.b = Number;
 				FoundB = true;
 				break;
 			}
 		}
 	}
 
+	return Output;
 }

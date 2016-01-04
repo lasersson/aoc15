@@ -1,7 +1,7 @@
 #include "aoc.h"
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	int Floor = 0;
 
@@ -23,7 +23,7 @@ Solve(input_file Input)
 		}
 	}
 
-	printf("%d\n", Floor);
-	printf("%d\n", BasementEntryStep);
+	output Output = { Floor, BasementEntryStep };
+	return Output;
 }
 

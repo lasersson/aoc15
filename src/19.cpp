@@ -128,8 +128,8 @@ CompareReplacements(const void *a, const void *b)
 	return Result;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	atom *MedicineMolecule = nullptr;
 	replacement *Replacements = nullptr;
@@ -154,6 +154,7 @@ Solve(input_file Input)
 
 	qsort(Replacements, GACount(Replacements), sizeof(replacement), CompareReplacements);
 
+	output Output = {};
 	atom **ResultSet = nullptr;
 	for (int ReplIt = 0; ReplIt < GACount(Replacements); ++ReplIt)
 	{
@@ -161,7 +162,7 @@ Solve(input_file Input)
 		ResultSet = Replace(MedicineMolecule, Repl.Src, Repl.Dst, ResultSet);
 	}
 
-	printf("%d\n", GACount(ResultSet));
+	Output.a = GACount(ResultSet);
 	for (int ResIt = 0; ResIt < GACount(ResultSet); ++ResIt)
 	{
 		GAFree(ResultSet[ResIt]);
@@ -234,7 +235,7 @@ Solve(input_file Input)
 		GAClear(ResultSet);
 	}
 
-	printf("%d\n", StepCount);
+	Output.b = StepCount;
 
 	for (int It = 0; It < GACount(TestedMolecules); ++It)
 	{
@@ -250,4 +251,6 @@ Solve(input_file Input)
 		GAFree(Replacements[ReplIt].Dst);
 	}
 	GAFree(Replacements);
+
+	return Output;
 }

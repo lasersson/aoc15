@@ -1,7 +1,7 @@
 #include <aoc.h>
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	int TotalArea = 0;
 	int TotalRibbonLength = 0;
@@ -32,6 +32,6 @@ Solve(input_file Input)
 		Token = strtok(0, Delim);
 	}
 
-	printf("%d\n", TotalArea);
-	printf("%d\n", TotalRibbonLength);
+	output Output = { TotalArea, TotalRibbonLength };
+	return Output;
 }

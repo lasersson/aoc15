@@ -9,8 +9,8 @@ CompareContainers(const void *a, const void *b)
 	return Result;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	int *Containers = nullptr;
 	char *Delim = "\r\n";
@@ -50,9 +50,10 @@ Solve(input_file Input)
 		}
 	}
 
-	printf("%d\n", HitCountTotal);
-	printf("%d\n", HitCounts[MinContainerCount]);
+	output Output = { HitCountTotal, HitCounts[MinContainerCount] };
 
 	GAFree(Containers);
 	free(HitCounts);
+
+	return Output;
 }

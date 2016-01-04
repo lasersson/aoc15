@@ -54,9 +54,10 @@ Pop(stack *Stack)
 
 static stack NodeStack;
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
+	NodeStack.Count = 0;
 	node *Root = Push(&NodeStack, NodeType_Object);
 	node *Node = Root;
 
@@ -118,6 +119,6 @@ Solve(input_file Input)
 	}
 
 	Assert(Node == Root);
-	printf("%d\n", Node->Sum);
-	printf("%d\n", Node->Sum - Node->RedSum);
+	output Output = { Node->Sum, Node->Sum - Node->RedSum };
+	return Output;
 }

@@ -2,8 +2,8 @@
 
 #define ArrayLength(x) (sizeof(x)/sizeof((x)[0]))
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	static char *Vowels = "aeiou";
 	static int VowelCount = (int)strlen(Vowels);
@@ -77,6 +77,6 @@ Solve(input_file Input)
 		Word = strtok(nullptr, "\n");
 	}
 
-	printf("%d\n", GoodWordCount1);
-	printf("%d\n", GoodWordCount2);
+	output Output = { GoodWordCount1, GoodWordCount2 };
+	return Output;
 }

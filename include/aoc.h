@@ -2,6 +2,7 @@
 #define __AOC_H__
 #include <Windows.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #if defined(AOC_DEBUG)
 #define Assert(x) do { if (!(x)) DebugBreak(); } while(0)
@@ -25,6 +26,19 @@ Max(int a, int b)
 	return Result;
 }
 
+inline uint64_t
+Min(uint64_t a, uint64_t b)
+{
+	uint64_t Result = a < b ? a : b;
+	return Result;
+}
+
+inline uint64_t
+Max(uint64_t a, uint64_t b)
+{
+	uint64_t Result = a > b ? a : b;
+	return Result;
+}
 
 #define GAHeader(Ary) ((int *)(Ary) - 2)
 #define GACapacity(Ary) (GAHeader(Ary)[0])
@@ -68,18 +82,36 @@ GAPop(void *Ary)
 	--GAHeader(Ary)[1];
 }
 
-struct input_file
+struct input
 {
 	char *Contents;
 	int Length;
 	bool Ok;
 };
 
-static input_file
+static uint64_t
+GetCounts()
+{
+	LARGE_INTEGER Counts;
+	QueryPerformanceCounter(&Counts);
+	return Counts.QuadPart;
+}
+
+static double
+GetElapsedMilliseconds(uint64_t BeginCounts, uint64_t EndCounts)
+{
+	LARGE_INTEGER CountsPerSecond;
+	QueryPerformanceFrequency(&CountsPerSecond);
+	uint64_t ElapsedCounts = EndCounts - BeginCounts;
+	double ElapsedMilliseconds = (double)ElapsedCounts / (double)CountsPerSecond.QuadPart * 1000.0;
+	return ElapsedMilliseconds;
+}
+
+static input
 ReadInfileFromArgs(int Argc, char **Argv)
 {
-	input_file Result = {};
-	if (Argc == 2)
+	input Result = {};
+	if (Argc >= 2)
 	{
 		FILE *File = fopen(Argv[1], "rb");
 		if (File)
@@ -132,14 +164,59 @@ ReadInfileFromArgs(int Argc, char **Argv)
 	return Result;
 }
 
-static void Solve(input_file Input);
+union output
+{
+	struct
+	{
+		uint64_t a;
+		uint64_t b;
+	};
+	uint64_t v[2];
+};
+
+static output Solve(input Input);
 
 int main(int Argc, char **Argv)
 {
-	input_file Input = ReadInfileFromArgs(Argc, Argv);
+	input Input = ReadInfileFromArgs(Argc, Argv);
 	if (Input.Ok)
 	{
-		Solve(Input);
+		bool IsTiming = Argc >= 3 && strcmp(Argv[2], "-time") == 0;
+		double TimingLimit = 1000.0;
+		if (Argc >= 4)
+		{
+			TimingLimit = atof(Argv[3]) * 1000.0;
+		}
+		double ElapsedMillisecondsTotal = 0.0;
+
+		int RunCount = 0;
+		input RunInput = Input;
+		RunInput.Contents = (char *)malloc(Input.Length+1);
+		do
+		{
+			memcpy(RunInput.Contents, Input.Contents, Input.Length+1);
+
+			uint64_t BeginCounts = GetCounts();
+			output Output = Solve(RunInput);
+			uint64_t EndCounts = GetCounts();
+			double ElapsedMilliseconds = GetElapsedMilliseconds(BeginCounts, EndCounts);
+
+			if (RunCount == 0)
+			{
+				printf("%llu\n%llu\n", Output.a, Output.b);
+			}
+
+			ElapsedMillisecondsTotal += ElapsedMilliseconds;
+			++RunCount;
+		} while (IsTiming && ElapsedMillisecondsTotal < TimingLimit);
+
+		if (IsTiming)
+		{
+			printf("%fms\n", ElapsedMillisecondsTotal / (double)RunCount);
+		}
+
+		free(RunInput.Contents);
+		free(Input.Contents);
 	}
 }
 

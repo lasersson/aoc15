@@ -31,8 +31,8 @@ LookSay(u8 *In, u8 *Out)
 	return Out;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	u8 *Buf1 = 0;
 	u8 *Buf2 = 0;
@@ -44,14 +44,20 @@ Solve(input_file Input)
 		GAPush(Buf1, Token[It] - '0');
 	}
 
+	output Output = {};
+
 	u8 *In = Buf1;
 	u8 *Out = Buf2;
 	for (int It = 0; It < 50; ++It)
 	{
 		Out = LookSay(In, Out);
-		if (It == 39 || It == 49)
+		if (It == 39)
 		{
-			printf("%d\n", GACount(Out));
+			Output.a = GACount(Out);
+		}
+		if (It == 49)
+		{
+			Output.b = GACount(Out);
 		}
 		u8 *Tmp = In;
 		In = Out;
@@ -61,4 +67,6 @@ Solve(input_file Input)
 
 	GAFree(In);
 	GAFree(Out);
+
+	return Output;
 }

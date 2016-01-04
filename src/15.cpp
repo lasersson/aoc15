@@ -31,41 +31,35 @@ Add(ingredient i, ingredient j)
 	return i;
 }
 
-struct score
+static output
+Max(output x, output y)
 {
-	int Regular;
-	int Diet;
-};
-
-static score
-Max(score a, score b)
-{
-	a.Regular = Max(a.Regular, b.Regular);
-	a.Diet = Max(a.Diet, b.Diet);
-	return a;
+	x.a = Max(x.a, y.a);
+	x.b = Max(x.b, y.b);
+	return x;
 }
 
-static score
+static output
 CalcMaxScore(int IngredientIndex, ingredient CurrentTotal, ingredient *Ingredients, int xSum)
 {
-	score MaxScore = {};
+	output MaxScore = {};
 	for (int x = 0; x <= (100 - xSum); ++x)
 	{
 		ingredient NewTotal = Add(Mul(Ingredients[IngredientIndex], x), CurrentTotal);
-		score Score = {};
+		output Score = {};
 		int xNew = xSum + x;
 		if (IngredientIndex == GACount(Ingredients) - 1)
 		{
 			if (xNew == 100)
 			{
-				Score.Regular =
+				Score.a =
 					Max(0, NewTotal.Capacity) *
 					Max(0, NewTotal.Durability) *
 					Max(0, NewTotal.Flavor) *
 					Max(0, NewTotal.Texture);
 				if (NewTotal.Calories == 500)
 				{
-					Score.Diet = Score.Regular;
+					Score.b = Score.a;
 				}
 			}
 		}
@@ -79,16 +73,16 @@ CalcMaxScore(int IngredientIndex, ingredient CurrentTotal, ingredient *Ingredien
 	return MaxScore;
 }
 
-static score
+static output
 CalcMaxScore(ingredient *Ingredients)
 {
 	ingredient Current = {};
-	score MaxScore = CalcMaxScore(0, Current, Ingredients, 0);
+	output MaxScore = CalcMaxScore(0, Current, Ingredients, 0);
 	return MaxScore;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	ingredient *Ingredients = nullptr;
 
@@ -123,9 +117,8 @@ Solve(input_file Input)
 		Token = strtok(nullptr, Delim);
 	}
 
-	score MaxScore = CalcMaxScore(Ingredients);
-	printf("%d\n", MaxScore.Regular);
-	printf("%d\n", MaxScore.Diet);
-
+	output Output = CalcMaxScore(Ingredients);
 	GAFree(Ingredients);
+
+	return Output;
 }

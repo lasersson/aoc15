@@ -21,8 +21,8 @@ GetDistanceAfter(reindeer Reindeer, int Duration)
 	return Distance;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	reindeer *Reindeers = nullptr;
 	char *Delim = " .\n\r";
@@ -85,10 +85,10 @@ Solve(input_file Input)
 		MaxDistance = Max(MaxDistance, Distances[It]);
 	}
 
-	printf("%d\n", MaxDistance);
-	printf("%d\n", MaxScore);
-
 	GAFree(Reindeers);
 	free(Distances);
 	free(Scores);
+
+	output Output = { MaxDistance, MaxScore };
+	return Output;
 }

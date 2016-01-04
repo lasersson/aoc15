@@ -105,8 +105,8 @@ AddInstr(instr* Pgm, instr Instr)
 	return Pgm;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	char *Delim = "\r\n ,";
 	char *Token = strtok(Input.Contents, Delim);
@@ -128,11 +128,13 @@ Solve(input_file Input)
 	}
 
 	cpu_state CpuState;
+	output Output;
 
 	CpuState = RunProgram({{0, 0}, 0}, Program);
-	printf("%d\n", CpuState.Regs[1]);
+	Output.a = CpuState.Regs[1];
 	CpuState = RunProgram({{1, 0}, 0}, Program);
-	printf("%d\n", CpuState.Regs[1]);
+	Output.b = CpuState.Regs[1];
 
 	GAFree(Program);
+	return Output;
 }

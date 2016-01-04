@@ -36,8 +36,8 @@ PredictWinner(actor Player0, actor Player1)
 	return Winner;
 }
 
-static void
-Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	actor Boss = {};
 
@@ -84,6 +84,6 @@ Solve(input_file Input)
 			}
 		}
 	}
-	printf("%d\n", CostMin);
-	printf("%d\n", CostMax);
+	output Output = { CostMin, CostMax };
+	return Output;
 }

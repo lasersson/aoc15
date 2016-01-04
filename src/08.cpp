@@ -113,7 +113,8 @@ Reset(parser Parser)
 	return Parser;
 }
 
-static void Solve(input_file Input)
+static output
+Solve(input Input)
 {
 	int LineLengthTotal = 0;
 	char *Line = strtok(Input.Contents, "\n");
@@ -138,6 +139,6 @@ static void Solve(input_file Input)
 		Line = strtok(nullptr, "\n");
 	}
 
-	printf("%d\n", LineLengthTotal - Decoder.Length);
-	printf("%d\n", Encoder.Length - LineLengthTotal);
+	output Output = { LineLengthTotal - Decoder.Length, Encoder.Length - LineLengthTotal };
+	return Output;
 }
