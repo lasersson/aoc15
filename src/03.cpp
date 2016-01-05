@@ -1,49 +1,25 @@
 #include <aoc.h>
 
-struct house
+union house
 {
-	int x, y;
+	struct
+	{
+		s16 x, y;
+	};
+	u32 v;
 };
-
-static bool
-HouseIsVisited(house *Houses, house House)
-{
-	bool Result = false;
-	for (int It = 0; It < GACount(Houses); ++It)
-	{
-		house *HouseIt = Houses + It;
-		if (HouseIt->x == House.x && HouseIt->y == House.y)
-		{
-			Result = true;
-			break;
-		}
-	}
-
-	return Result;
-}
-
-static house *
-VisitHouse(house *Houses, house House)
-{
-	if (!Houses || !HouseIsVisited(Houses, House))
-	{
-		GAPush(Houses, House);
-	}
-	return Houses;
-}
 
 #define SANTA_MAX_COUNT 2
 
 static output
 Solve(input Input)
 {
-	house *VisitedHouses = nullptr;
-
 	output Output;
+	hash_table VisitedHouses = InitHashTable(256);
 	for (int SantaCount = 0; SantaCount < 2; ++SantaCount)
 	{
 		house SantaHouse[SANTA_MAX_COUNT] = {};
-		VisitedHouses = VisitHouse(VisitedHouses, SantaHouse[0]);
+		InsertHash(&VisitedHouses, SantaHouse[0].v);
 		for (int It = 0; It < Input.Length; ++It)
 		{
 			house *CurSantaHouse = SantaHouse + (It % (SantaCount + 1));
@@ -56,13 +32,13 @@ Solve(input Input)
 				case '<': --CurSantaHouse->x; break;
 				default: Assert(!"Invalid input");
 			}
-			VisitedHouses = VisitHouse(VisitedHouses, *CurSantaHouse);
+			InsertHash(&VisitedHouses, CurSantaHouse->v);
 		}
 
-		Output.v[SantaCount] = GACount(VisitedHouses);
-		GAClear(VisitedHouses);
+		Output.v[SantaCount] = VisitedHouses.Count;
+		Clear(&VisitedHouses);
 	}
 
-	GAFree(VisitedHouses);
+	FreeHashTable(&VisitedHouses);
 	return Output;
 }

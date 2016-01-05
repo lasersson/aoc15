@@ -138,6 +138,7 @@ struct hash_table
 {
 	u32 **Buckets;
 	int BucketCount;
+	int Count;
 };
 
 static hash_table
@@ -147,6 +148,7 @@ InitHashTable(int BucketCount)
 	Table.Buckets = (u32 **)malloc(sizeof(u32*) * BucketCount);
 	memset(Table.Buckets, 0, sizeof(u32 *) * BucketCount);
 	Table.BucketCount = BucketCount;
+	Table.Count = 0;
 	return Table;
 }
 
@@ -161,6 +163,7 @@ Clear(hash_table *Table)
 			GAClear(Bucket);
 		}
 	}
+	Table->Count = 0;
 }
 
 static void
@@ -210,6 +213,7 @@ InsertHash(hash_table *Table, u32 Hash)
 	{
 		GAPush(Bucket, Hash);
 		Table->Buckets[BucketIndex] = Bucket;
+		++Table->Count;
 	}
 	return Result;
 }
