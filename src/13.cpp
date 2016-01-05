@@ -1,21 +1,11 @@
 #include <aoc.h>
-#include <stdint.h>
 
-typedef uint16_t vertex_id;
+typedef u16 vertex_id;
 
 static vertex_id
 MakeVertexId(char *Str)
 {
-	int Len = (int)strlen(Str);
-	vertex_id Sum1 = 0;
-	vertex_id Sum2 = 0;
-	for (int It = 0; It < Len; ++It)
-	{
-		Sum1 = (Sum1 + Str[It]) % 255;
-		Sum2 = (Sum2 + Sum1) % 255;
-	}
-	
-	vertex_id VertexId = (Sum2 << 8) | (Sum1);
+	vertex_id VertexId = Fletcher16(Str, (u32)strlen(Str));
 	return VertexId;
 }
 

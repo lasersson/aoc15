@@ -116,8 +116,8 @@ Solve(input Input)
 	output Output;
 
 	Pwd = GetNext(Pwd);
-	Output.a = *(uint64_t *)&Pwd;
+	Output.a = *(u64 *)&Pwd;
 	Pwd = GetNext(Pwd);
-	Output.b = *(uint64_t *)&Pwd;
+	Output.b = *(u64 *)&Pwd;
 	return Output;
 }

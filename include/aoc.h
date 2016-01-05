@@ -91,15 +91,31 @@ GAPop(void *Ary)
 	--GAHeader(Ary)[1];
 }
 
-static uint32_t
-Fletcher32(void *Data, uint32_t ByteCount)
+static u16
+Fletcher16(void *Data, u32 ByteCount)
 {
-	uint32_t s1 = 0xffff, s2 = 0xffff;
-	uint32_t tLen;
+	u8 *Bytes = (u8 *)Data;
+	u16 s1 = 0;
+	u16 s2 = 0;
+	for (u32 It = 0; It < ByteCount; ++It)
+	{
+		s1 = (s1 + Bytes[It]) % 255;
+		s2 = (s2 + s1) % 255;
+	}
+	
+	u16 Hash = (s2 << 8) | (s1);
+	return Hash;
+}
+
+static u32
+Fletcher32(void *Data, u32 ByteCount)
+{
+	u32 s1 = 0xffff, s2 = 0xffff;
+	u32 tLen;
  
 	Assert((ByteCount & 3) == 0);
-	uint16_t *Words = (uint16_t *)Data;
-	uint32_t WordCount = ByteCount >> 2;
+	u16 *Words = (uint16_t *)Data;
+	u32 WordCount = ByteCount >> 2;
 	while (WordCount)
 	{
 		tLen = WordCount >= 359 ? 359 : WordCount;
@@ -114,7 +130,7 @@ Fletcher32(void *Data, uint32_t ByteCount)
 
 	s1 = (s1 & 0xffff) + (s1 >> 16);
 	s2 = (s2 & 0xffff) + (s2 >> 16);
-	uint32_t Hash = s2 << 16 | s1;
+	u32 Hash = s2 << 16 | s1;
 	return  Hash;
 }
 
@@ -205,7 +221,7 @@ struct input
 	bool Ok;
 };
 
-static uint64_t
+static u64
 GetCounts()
 {
 	LARGE_INTEGER Counts;
@@ -214,11 +230,11 @@ GetCounts()
 }
 
 static double
-GetElapsedMilliseconds(uint64_t BeginCounts, uint64_t EndCounts)
+GetElapsedMilliseconds(u64 BeginCounts, u64 EndCounts)
 {
 	LARGE_INTEGER CountsPerSecond;
 	QueryPerformanceFrequency(&CountsPerSecond);
-	uint64_t ElapsedCounts = EndCounts - BeginCounts;
+	u64 ElapsedCounts = EndCounts - BeginCounts;
 	double ElapsedMilliseconds = (double)ElapsedCounts / (double)CountsPerSecond.QuadPart * 1000.0;
 	return ElapsedMilliseconds;
 }
@@ -284,10 +300,10 @@ union output
 {
 	struct
 	{
-		uint64_t a;
-		uint64_t b;
+		u64 a;
+		u64 b;
 	};
-	uint64_t v[2];
+	u64 v[2];
 };
 
 static output Solve(input Input);
@@ -312,9 +328,9 @@ int main(int Argc, char **Argv)
 		{
 			memcpy(RunInput.Contents, Input.Contents, Input.Length+1);
 
-			uint64_t BeginCounts = GetCounts();
+			u64 BeginCounts = GetCounts();
 			output Output = Solve(RunInput);
-			uint64_t EndCounts = GetCounts();
+			u64 EndCounts = GetCounts();
 			double ElapsedMilliseconds = GetElapsedMilliseconds(BeginCounts, EndCounts);
 
 			if (RunCount == 0)

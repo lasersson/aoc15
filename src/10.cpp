@@ -1,7 +1,4 @@
 #include <aoc.h>
-#include <stdint.h>
-
-typedef uint8_t u8;
 
 static u8 *
 LookSay(u8 *In, u8 *Out)

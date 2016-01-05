@@ -1,5 +1,4 @@
 #include <aoc.h>
-#include <stdint.h>
 
 union atom
 {

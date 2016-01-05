@@ -1,5 +1,4 @@
 #include <aoc.h>
-#include <stdint.h>
 
 static output
 Solve(input Input)
@@ -10,7 +9,7 @@ Solve(input Input)
 	Token = strtok(nullptr, Delim);
 	int ColIndex = atoi(Token) - 1;
 
-	uint64_t Code = 20151125;
+	u64 Code = 20151125;
 	for(int ColIt = 0, RowIt = 1;
 		!(RowIt == RowIndex + ColIndex && ColIt == ColIndex + 1);
 		++ColIt)

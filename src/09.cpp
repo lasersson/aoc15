@@ -1,21 +1,11 @@
 #include <aoc.h>
-#include <stdint.h>
 
-typedef uint16_t node;
+typedef u16 node;
 
 static node
 MakeNodeId(char *Str)
 {
-	int Len = (int)strlen(Str);
-	node Sum1 = 0;
-	node Sum2 = 0;
-	for (int It = 0; It < Len; ++It)
-	{
-		Sum1 = (Sum1 + Str[It]) % 255;
-		Sum2 = (Sum2 + Sum1) % 255;
-	}
-	
-	node Node = (Sum2 << 8) | (Sum1);
+	node Node = Fletcher16(Str, (u32)strlen(Str));
 	return Node;
 }
 

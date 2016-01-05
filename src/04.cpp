@@ -1,8 +1,4 @@
 #include <aoc.h>
-#include <stdint.h>
-
-typedef uint32_t u32;
-typedef uint64_t u64;
 
 static u32 Shift[64] = {
 	7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
