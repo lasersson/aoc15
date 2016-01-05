@@ -9,6 +9,18 @@ struct actor
 	int ManaSpent;
 };
 
+static bool
+Equal(actor a, actor b)
+{
+	bool Result = 
+		a.HitPoints == b.HitPoints &&
+		a.Damage == b.Damage &&
+		a.Armor == b.Armor &&
+		a.Mana == b.Mana &&
+		a.ManaSpent == b.ManaSpent;
+	return Result;
+}
+
 enum spell
 {
 	Spell_MagicMissile,
@@ -188,6 +200,7 @@ Solve(input Input)
 	InitState.Boss.Damage = atoi(strtok(nullptr, Delim));
 	
 	output Output = {};
+	hash_table VisitedTable = InitHashTable(512);
 	for (int DifficultyIt = 0; DifficultyIt < Difficulty_Count; ++DifficultyIt)
 	{
 		game_state PlaythroughState = InitState;
@@ -195,62 +208,68 @@ Solve(input Input)
 		game_state *StateStack = nullptr;
 		GAPush(StateStack, PlaythroughState);
 		int ManaSpentMin = 999999;
-		int It = 0;
+		int TotalCount = 0;
+		int VisitedCount = 0;
 		while (GACount(StateStack))
 		{
 			game_state State = GATop(StateStack);
 			GAPop(StateStack);
+			++TotalCount;
 
 			Assert(IsAlive(State.Player));
 			Assert(IsAlive(State.Boss));
 
-			State = ApplyEffects(State);
-			if (IsAlive(State.Player))
+			u32 StateHash = Fletcher32(&State, sizeof(State));
+			if (!InsertHash(&VisitedTable, StateHash))
 			{
-				if (IsAlive(State.Boss))
+				State = ApplyEffects(State);
+				if (IsAlive(State.Player))
 				{
-					Assert(IsAlive(State.Player));
-					Assert(IsAlive(State.Boss));
-
-					if (State.Turn == Turn_Player && State.Player.ManaSpent < ManaSpentMin)
+					if (IsAlive(State.Boss))
 					{
-						for (int SpellIt = 0; SpellIt < Spell_Count; ++SpellIt)
+						Assert(IsAlive(State.Player));
+						Assert(IsAlive(State.Boss));
+
+						if (State.Turn == Turn_Player && State.Player.ManaSpent < ManaSpentMin)
 						{
-							if (CanCastSpell(State, (spell)SpellIt))
+							for (int SpellIt = 0; SpellIt < Spell_Count; ++SpellIt)
 							{
-								game_state NewState = CastSpell(State, (spell)SpellIt);
-								if (!IsAlive(NewState.Boss))
+								if (CanCastSpell(State, (spell)SpellIt))
 								{
-									ManaSpentMin = Min(ManaSpentMin, NewState.Player.ManaSpent);
+									game_state NewState = CastSpell(State, (spell)SpellIt);
+									if (!IsAlive(NewState.Boss))
+									{
+										ManaSpentMin = Min(ManaSpentMin, NewState.Player.ManaSpent);
+									}
+									else
+									{
+										NewState = NextTurn(NewState);
+										GAPush(StateStack, NewState);
+									}
 								}
-								else
-								{
-									NewState = NextTurn(NewState);
-									GAPush(StateStack, NewState);
-								}
+							}
+						}
+						else
+						{
+							game_state NewState = State;
+							NewState.Player = DealDamage(NewState.Player, NewState.Boss.Damage);
+							if (IsAlive(NewState.Player))
+							{
+								NewState = NextTurn(NewState);
+								GAPush(StateStack, NewState);
 							}
 						}
 					}
 					else
 					{
-						game_state NewState = State;
-						NewState.Player = DealDamage(NewState.Player, NewState.Boss.Damage);
-						if (IsAlive(NewState.Player))
-						{
-							NewState = NextTurn(NewState);
-							GAPush(StateStack, NewState);
-						}
+						ManaSpentMin = Min(ManaSpentMin, State.Player.ManaSpent);
 					}
 				}
-				else
-				{
-					ManaSpentMin = Min(ManaSpentMin, State.Player.ManaSpent);
-				}
 			}
-
-			++It;
 		}
 		Output.v[DifficultyIt] = ManaSpentMin;
+		Clear(&VisitedTable);
 	}
+	FreeHashTable(&VisitedTable);
 	return Output;
 }
