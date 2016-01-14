@@ -3,7 +3,7 @@
 typedef u16 node;
 
 static node
-MakeNodeId(char *Str)
+MakeNodeId(const char *Str)
 {
 	node Node = Fletcher16(Str, (u32)strlen(Str));
 	return Node;
@@ -92,7 +92,7 @@ Solve(input Input)
 	node *AllNodes = nullptr;
 	edge *Edges = nullptr;
 
-	char *Delim = "\n ";
+	const char *Delim = "\n ";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

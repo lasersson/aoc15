@@ -13,7 +13,7 @@ enum op
 typedef u32 id;
 
 static id
-MakeId(char *Name)
+MakeId(const char *Name)
 {
 	id Id;
 	if (Name[0] >= '0' && Name[0] <= '9')
@@ -114,7 +114,7 @@ static output
 Solve(input Input)
 {
 	wire *Circuit = nullptr;
-	char *Delim = "\n ";
+	const char *Delim = "\n ";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

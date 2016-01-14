@@ -86,7 +86,7 @@ Solve(input Input)
 {
 	ingredient *Ingredients = nullptr;
 
-	char *Delim = " ,:\n\r";
+	const char *Delim = " ,:\n\r";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

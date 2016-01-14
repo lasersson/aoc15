@@ -21,7 +21,7 @@ struct pos
 static output
 Solve(input Input)
 {
-	char *Delim = "\n, ";
+	const char *Delim = "\n, ";
 	char *Token = strtok(Input.Contents, Delim);
 
 	int LightsLitCount = 0;

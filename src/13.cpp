@@ -3,7 +3,7 @@
 typedef u16 vertex_id;
 
 static vertex_id
-MakeVertexId(char *Str)
+MakeVertexId(const char *Str)
 {
 	vertex_id VertexId = Fletcher16(Str, (u32)strlen(Str));
 	return VertexId;
@@ -29,7 +29,7 @@ FindVertexIndex(vertex_id *Vertices, vertex_id Vertex)
 }
 
 static vertex_id *
-AddVertexToSet(vertex_id *Vertices, char *VertexName, int *OutVertexIndex)
+AddVertexToSet(vertex_id *Vertices, const char *VertexName, int *OutVertexIndex)
 {
 	vertex_id VertexId = MakeVertexId(VertexName);
 	int VertexIndex = FindVertexIndex(Vertices, VertexId);
@@ -105,7 +105,7 @@ Solve(input Input)
 	vertex_id *Vertices = nullptr;
 	edge *Edges = nullptr;
 
-	char *Delim = " \r\n.";
+	const char *Delim = " \r\n.";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

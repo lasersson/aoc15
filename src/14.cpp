@@ -25,7 +25,7 @@ static output
 Solve(input Input)
 {
 	reindeer *Reindeers = nullptr;
-	char *Delim = " .\n\r";
+	const char *Delim = " .\n\r";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

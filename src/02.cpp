@@ -6,7 +6,7 @@ Solve(input Input)
 	int TotalArea = 0;
 	int TotalRibbonLength = 0;
 
-	char *Delim = "x\n";
+	const char *Delim = "x\n";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

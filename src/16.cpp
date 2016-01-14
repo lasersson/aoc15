@@ -89,7 +89,7 @@ static output
 Solve(input Input)
 {
 	sue *Sues = nullptr;
-	char *Delim = ": ,\n\r";
+	const char *Delim = ": ,\n\r";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

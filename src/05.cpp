@@ -5,9 +5,9 @@
 static output
 Solve(input Input)
 {
-	static char *Vowels = "aeiou";
+	static const char *Vowels = "aeiou";
 	static int VowelCount = (int)strlen(Vowels);
-	static char *DisallowedPairs[] = { "ab", "cd", "pq", "xy" };
+	static const char *DisallowedPairs[] = { "ab", "cd", "pq", "xy" };
 
 	char *Word = strtok(Input.Contents, "\n");
 	int GoodWordCount1 = 0;
@@ -43,7 +43,7 @@ Solve(input Input)
 
 			for (int PairIt = 0; PairIt < ArrayLength(DisallowedPairs); ++PairIt)
 			{
-				char *Pair = DisallowedPairs[PairIt];
+				const char *Pair = DisallowedPairs[PairIt];
 				if (pc == Pair[0] && c == Pair[1])
 				{
 					WordHasDisallowedPair = true;

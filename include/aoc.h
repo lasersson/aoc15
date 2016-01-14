@@ -1,8 +1,11 @@
 #ifndef __AOC_H__
 #define __AOC_H__
-#include <Windows.h>
+#ifdef _WINDOWS
+#endif
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -13,6 +16,18 @@ typedef int16_t s16;
 typedef int32_t s32;
 typedef int64_t s64;
 
+#if defined(_WINDOWS)
+#include <Windows.h>
+#define AOC_WINDOWS 1
+#elif defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L
+#include <signal.h>
+#define DebugBreak() raise(SIGTRAP)
+#define RotateLeft32(x, y) _rotl(x, y)
+#define AOC_POSIX 1
+#else
+#error Unsupported platform
+#endif
+
 #if defined(AOC_DEBUG)
 #define Assert(x) do { if (!(x)) DebugBreak(); } while(0)
 #else
@@ -22,30 +37,16 @@ typedef int64_t s64;
 #define ArrayCount(x) (sizeof(x)/sizeof((x)[0]))
 
 inline int
-Min(int a, int b)
+Min(s64 a, s64 b)
 {
 	int Result = a < b ? a : b;
 	return Result;
 }
 
 inline int
-Max(int a, int b)
+Max(s64 a, s64 b)
 {
 	int Result = a > b ? a : b;
-	return Result;
-}
-
-inline uint64_t
-Min(uint64_t a, uint64_t b)
-{
-	uint64_t Result = a < b ? a : b;
-	return Result;
-}
-
-inline uint64_t
-Max(uint64_t a, uint64_t b)
-{
-	uint64_t Result = a > b ? a : b;
 	return Result;
 }
 
@@ -92,7 +93,7 @@ GAPop(void *Ary)
 }
 
 static u16
-Fletcher16(void *Data, u32 ByteCount)
+Fletcher16(const void *Data, u32 ByteCount)
 {
 	u8 *Bytes = (u8 *)Data;
 	u16 s1 = 0;
@@ -108,7 +109,7 @@ Fletcher16(void *Data, u32 ByteCount)
 }
 
 static u32
-Fletcher32(void *Data, u32 ByteCount)
+Fletcher32(const void *Data, u32 ByteCount)
 {
 	u32 s1 = 0xffff, s2 = 0xffff;
 	u32 tLen;
@@ -225,22 +226,48 @@ struct input
 	bool Ok;
 };
 
-static u64
-GetCounts()
+#if defined(AOC_WINDOWS)
+typedef u64 timestamp;
+#elif defined(AOC_POSIX)
+#include <time.h>
+typedef timespec timestamp;
+#endif
+
+static timestamp
+GetTimestamp()
 {
+#if defined(AOC_WINDOWS)
 	LARGE_INTEGER Counts;
 	QueryPerformanceCounter(&Counts);
 	return Counts.QuadPart;
+#elif defined(AOC_POSIX)
+	timespec TimeSpec;
+	clock_gettime(CLOCK_MONOTONIC, &TimeSpec);
+	return TimeSpec;
+#endif
 }
 
 static double
-GetElapsedMilliseconds(u64 BeginCounts, u64 EndCounts)
+GetElapsedMilliseconds(timestamp Begin, timestamp End)
 {
+#if defined(AOC_WINDOWS)
 	LARGE_INTEGER CountsPerSecond;
 	QueryPerformanceFrequency(&CountsPerSecond);
-	u64 ElapsedCounts = EndCounts - BeginCounts;
+	u64 ElapsedCounts = End - Begin;
 	double ElapsedMilliseconds = (double)ElapsedCounts / (double)CountsPerSecond.QuadPart * 1000.0;
 	return ElapsedMilliseconds;
+#elif defined(AOC_POSIX)
+	timestamp ElapsedTime;
+	time_t ElapsedSeconds = End.tv_sec - Begin.tv_sec;
+	long ElapsedNanoseconds = End.tv_nsec - Begin.tv_nsec;
+	if (ElapsedNanoseconds < 0)
+	{
+		--ElapsedSeconds;
+		ElapsedNanoseconds = 1000000000L + ElapsedNanoseconds;
+	}
+	double ElapsedMilliseconds = 1000.0 * (double)ElapsedSeconds + (double)ElapsedNanoseconds / 1000000.0;
+	return ElapsedMilliseconds;
+#endif
 }
 
 static input
@@ -304,10 +331,10 @@ union output
 {
 	struct
 	{
-		u64 a;
-		u64 b;
+		s64 a;
+		s64 b;
 	};
-	u64 v[2];
+	s64 v[2];
 };
 
 static output Solve(input Input);
@@ -332,14 +359,14 @@ int main(int Argc, char **Argv)
 		{
 			memcpy(RunInput.Contents, Input.Contents, Input.Length+1);
 
-			u64 BeginCounts = GetCounts();
+			timestamp BeginTime = GetTimestamp();
 			output Output = Solve(RunInput);
-			u64 EndCounts = GetCounts();
-			double ElapsedMilliseconds = GetElapsedMilliseconds(BeginCounts, EndCounts);
+			timestamp EndTime = GetTimestamp();
+			double ElapsedMilliseconds = GetElapsedMilliseconds(BeginTime, EndTime);
 
 			if (RunCount == 0)
 			{
-				printf("%llu\n%llu\n", Output.a, Output.b);
+				printf("%ld\n%ld\n", Output.a, Output.b);
 			}
 
 			ElapsedMillisecondsTotal += ElapsedMilliseconds;

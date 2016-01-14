@@ -11,7 +11,7 @@ enum op
 	Op_Jio,
 };
 
-static char *OpStrMap[] = { "", "hlf", "tpl", "inc", "jmp", "jie", "jio" };
+static const char *OpStrMap[] = { "", "hlf", "tpl", "inc", "jmp", "jie", "jio" };
 
 static op
 OpFromString(char *Token)
@@ -108,7 +108,7 @@ AddInstr(instr* Pgm, instr Instr)
 static output
 Solve(input Input)
 {
-	char *Delim = "\r\n ,";
+	const char *Delim = "\r\n ,";
 	char *Token = strtok(Input.Contents, Delim);
 	instr *Program = nullptr;
 	while (Token)

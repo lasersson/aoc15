@@ -26,6 +26,13 @@ static u32 K[64] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
 };
 
+inline u32
+RotateLeft(u32 x, u32 s)
+{
+	u32 Result = (x << s) | (x >> (32 - s));
+	return Result;
+}
+
 union digest
 {
 	struct
@@ -119,7 +126,7 @@ Solve(input Input)
 			u32 NewA = Cur.D;
 			Cur.D = Cur.C;
 			Cur.C = Cur.B;
-			Cur.B = Cur.B + RotateLeft32((Cur.A + F + K[It] + Msg4[g]), Shift[It]);
+			Cur.B = Cur.B + RotateLeft((Cur.A + F + K[It] + Msg4[g]), Shift[It]);
 			Cur.A = NewA;
 
 		}

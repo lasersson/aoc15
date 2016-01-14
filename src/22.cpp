@@ -193,7 +193,7 @@ Solve(input Input)
 	game_state InitState = {};
 	InitState.Player = { 50, 0, 0, 500, 0 };
 
-	char *Delim = "\r\n:";
+	const char *Delim = "\r\n:";
 	strtok(Input.Contents, Delim);
 	InitState.Boss.HitPoints = atoi(strtok(nullptr, Delim));
 	strtok(nullptr, Delim);

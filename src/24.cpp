@@ -141,7 +141,7 @@ Solve(input Input)
 {
 	int TotalWeight = 0;
 	int *Weights = nullptr;
-	char *Delim = "\r\n";
+	const char *Delim = "\r\n";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

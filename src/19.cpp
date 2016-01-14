@@ -132,7 +132,7 @@ Solve(input Input)
 {
 	atom *MedicineMolecule = nullptr;
 	replacement *Replacements = nullptr;
-	char *Delim = "\r\n =>";
+	const char *Delim = "\r\n =>";
 	char *Token = strtok(Input.Contents, Delim);
 	while (Token)
 	{

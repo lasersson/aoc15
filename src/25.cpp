@@ -3,13 +3,13 @@
 static output
 Solve(input Input)
 {
-	char *Delim = "\r\n,. column";
+	const char *Delim = "\r\n,. column";
 	char *Token = strtok(Input.Contents + 80, Delim);
 	int RowIndex = atoi(Token) - 1;
 	Token = strtok(nullptr, Delim);
 	int ColIndex = atoi(Token) - 1;
 
-	u64 Code = 20151125;
+	s64 Code = 20151125;
 	for(int ColIt = 0, RowIt = 1;
 		!(RowIt == RowIndex + ColIndex && ColIt == ColIndex + 1);
 		++ColIt)

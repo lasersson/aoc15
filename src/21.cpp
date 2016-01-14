@@ -41,7 +41,7 @@ Solve(input Input)
 {
 	actor Boss = {};
 
-	char *Delim = "\r\n:";
+	const char *Delim = "\r\n:";
 	strtok(Input.Contents, Delim);
 	Boss.HitPoints = atoi(strtok(nullptr, Delim));
 	strtok(nullptr, Delim);

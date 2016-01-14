@@ -105,7 +105,7 @@ Solve(input Input)
 	bool *LightGrid1 = (bool *)malloc(sizeof(bool) * LIGHT_COUNT);
 	bool *LightGrid2 = (bool *)malloc(sizeof(bool) * LIGHT_COUNT);
 
-	char *Delim = "\n\r";
+	const char *Delim = "\n\r";
 	char *Token = strtok(Input.Contents, Delim);
 	int RowIt = 0;
 	while (Token)
