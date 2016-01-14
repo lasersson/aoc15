@@ -26,20 +26,13 @@ static u32 K[64] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
 };
 
-inline u32
-RotateLeft(u32 x, u32 s)
-{
-	u32 Result = (x << s) | (x >> (32 - s));
-	return Result;
-}
-
 union digest
 {
 	struct
 	{
 		u32 A, B, C, D;
 	};
-	unsigned char b[16];
+	u8 b[16];
 	u32 w[4];
 };
 
@@ -47,26 +40,48 @@ static output
 Solve(input Input)
 {
 	char *Key = strtok(Input.Contents, "\n\r");
+	int KeyLen = (int)strlen(Key);
 	output Output = {};
 
-	bool FoundA = false;
-	bool FoundB = false;
-	for (u32 Number = 0; Number >= 0; ++Number)
+	char NumStr[16];
+	memset(NumStr, '0', ArrayCount(NumStr));
+	char *CurN = NumStr + ArrayCount(NumStr) - 2;
+	*CurN = '1';
+	*(CurN + 1) = 0;
+	u32 Masks[2] = { 0xf0ffff, 0xffffff };
+	int OutputIndex = 0;
+	int Number = 1;
+	char MsgStr[64] = {};
+	strcat(MsgStr, Key);
+	while (OutputIndex < 2)
 	{
-		unsigned char Msg[64];
-		u32 *Msg4 = (u32 *)Msg;
-		int MsgByteCount = sprintf((char *)Msg, "%s%u", Key, Number);
-		if (MsgByteCount > 55)
+		int MsgByteCount = KeyLen;
+		char *n = CurN;
+		while (*(n++)) MsgStr[MsgByteCount++] = *(n-1);
+
+		n = NumStr + ArrayCount(NumStr) - 2;
+		char nn = 1;
+		while (nn)
 		{
-			printf("Key too long\n");
-			break;
+			if (*n < '9')
+			{
+				*n += nn--;
+			}
+			else
+			{
+				*n-- = '0';
+			}
+		}
+		if (n < CurN)
+		{
+			CurN = n;
 		}
 
+		u8 *Msg = (u8 *)MsgStr;
+		u32 *Msg4 = (u32 *)Msg;
+		Assert(MsgByteCount <= 55);
+
 		Msg[MsgByteCount] = 0x80;
-		for (u32 It = MsgByteCount + 1; It < 56; ++It)
-		{
-			Msg[It] = 0;
-		}
 		*((u64 *)(Msg + 56)) = MsgByteCount * 8;
 
 		digest Digest;
@@ -88,23 +103,23 @@ Solve(input Input)
 			else if (It < 32)
 			{
 				F = (Cur.D & Cur.B) | ((~Cur.D) & Cur.C);
-				g = (5 * It + 1) % 16;
+				g = (5 * It + 1) & 0xf;
 			}
 			else if (It < 48)
 			{
 				F = Cur.B ^ Cur.C ^ Cur.D;
-				g = (3 * It + 5) % 16;
+				g = (3 * It + 5) & 0xf;
 			}
 			else
 			{
 				F = Cur.C ^ (Cur.B | (~Cur.D));
-				g = (7 * It) % 16;
+				g = (7 * It) & 0xf;
 			}
 
 			u32 NewA = Cur.D;
 			Cur.D = Cur.C;
 			Cur.C = Cur.B;
-			Cur.B = Cur.B + RotateLeft((Cur.A + F + K[It] + Msg4[g]), Shift[It]);
+			Cur.B = Cur.B + RotateLeft32((Cur.A + F + K[It] + Msg4[g]), Shift[It]);
 			Cur.A = NewA;
 
 		}
@@ -114,20 +129,11 @@ Solve(input Input)
 		Digest.C += Cur.C;
 		Digest.D += Cur.D;
 
-		if (Digest.b[0] == 0 && Digest.b[1] == 0 && (Digest.b[2] & 0xf0) == 0)
+		if ((Digest.A & Masks[OutputIndex]) == 0)
 		{
-			if (!FoundA)
-			{
-				Output.a = Number;
-				FoundA = true;
-			}
-			if (Digest.b[2] == 0 && !FoundB)
-			{
-				Output.b = Number;
-				FoundB = true;
-				break;
-			}
+			Output.v[OutputIndex++] = Number;
 		}
+		++Number;
 	}
 
 	return Output;
